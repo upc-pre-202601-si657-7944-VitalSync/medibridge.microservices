@@ -92,6 +92,90 @@ Antes de ejecutar Karate deben estar activos:
 3. `iam-service` en el puerto `8081`.
 4. `profiles-service` en el puerto `8082`.
 
+## 3.1. Configurar IntelliJ si no deja ejecutar los runners
+
+Si al abrir `IamRunner.java` o `ProfilesRunner.java` aparece este mensaje:
+
+```text
+Java file is located outside of the module source root, so it won't be compiled
+```
+
+significa que IntelliJ todavia no importo `tests/api-tests` como modulo Maven.
+
+Solucion recomendada:
+
+1. Abrir la ventana `Maven` de IntelliJ.
+2. Clic en `+` o `Add Maven Project`.
+3. Seleccionar este archivo:
+
+```text
+tests/api-tests/pom.xml
+```
+
+4. Clic en `Reload All Maven Projects`.
+5. Verificar que `tests/api-tests/src/test/java` aparezca como carpeta de test.
+6. Volver a abrir `IamRunner.java` o `ProfilesRunner.java`.
+
+Solucion alternativa:
+
+1. Clic derecho sobre:
+
+```text
+tests/api-tests/src/test/java
+```
+
+2. Seleccionar `Mark Directory as`.
+3. Seleccionar `Test Sources Root`.
+
+La opcion Maven es mejor porque tambien carga las dependencias de Karate.
+
+Para correr desde IntelliJ sin depender del boton verde del archivo:
+
+1. Ir a `Run > Edit Configurations`.
+2. Crear una configuracion `Maven`.
+3. Usar como working directory la raiz del repositorio.
+4. Para IAM, usar este comando:
+
+```text
+-f tests/api-tests/pom.xml -Dtest=IamRunner test
+```
+
+5. Para Profiles, usar este comando:
+
+```text
+-f tests/api-tests/pom.xml -Dtest=ProfilesRunner test
+```
+
+6. Para todo el suite, usar este comando:
+
+```text
+-f tests/api-tests/pom.xml test
+```
+
+## 3.2. Error comun: localhost:5433 refused
+
+Si al arrancar `iam-service` aparece:
+
+```text
+Connection to localhost:5433 refused
+```
+
+no es un problema de Karate. Significa que `iam-service` intento conectarse a PostgreSQL, pero la base de datos del `docker-compose` no esta levantada.
+
+Primero ejecuta:
+
+```powershell
+docker compose -f docker/docker-compose.yml up -d
+```
+
+Luego valida:
+
+```powershell
+docker compose -f docker/docker-compose.yml ps
+```
+
+Despues recien levanta `iam-service`.
+
 ## 4. Levantar infraestructura
 
 Desde la raiz del repositorio:

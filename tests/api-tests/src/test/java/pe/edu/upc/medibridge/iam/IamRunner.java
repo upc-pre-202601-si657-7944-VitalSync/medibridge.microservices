@@ -2,7 +2,7 @@ package pe.edu.upc.medibridge.iam;
 
 import com.intuit.karate.junit5.Karate;
 
-class IamRunner {
+public class IamRunner {
 
     @Karate.Test
     Karate testIam() {

@@ -199,6 +199,12 @@ medibridge-rabbitmq   Up ... (healthy)
 
 ## 5. Levantar microservicios
 
+Guia detallada para levantar ambos servicios paso a paso:
+
+```text
+docs/GUIA_EJECUCION_IAM_Y_PROFILES.md
+```
+
 ### Terminal 1: IAM
 
 ```powershell

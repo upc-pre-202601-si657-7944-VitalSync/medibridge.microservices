@@ -2,6 +2,7 @@ Feature: IAM Service API
 
   Background:
     * url iamBaseUrl
+    * configure headers = { X-Internal-Token: '#(internalToken)' }
     * def uuid = java.util.UUID.randomUUID().toString()
     * def username = 'iam_' + uuid
     * def password = 'Test123456!'

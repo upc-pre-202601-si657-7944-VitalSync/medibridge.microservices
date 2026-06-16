@@ -1,11 +1,12 @@
-# Guia de ejecucion de iam-service y profiles-service
+# Guia de ejecucion de iam-service, profiles-service y api-gateway
 
-Esta guia explica como levantar localmente los microservicios `iam-service` y `profiles-service` en el orden correcto.
+Esta guia explica como levantar localmente los microservicios `iam-service`, `profiles-service` y `api-gateway` en el orden correcto.
 
 ## 1. Puertos usados
 
 | Componente | Puerto local | Uso |
 | --- | --- | --- |
+| `api-gateway` | `8080` | Entrada publica, enrutamiento y Swagger consolidado |
 | `iam-service` | `8081` | Autenticacion, usuarios, roles, JWKS |
 | `profiles-service` | `8082` | Pacientes, doctores, familiares |
 | PostgreSQL | `5433` | Base de datos local mediante Docker |
@@ -15,6 +16,8 @@ Esta guia explica como levantar localmente los microservicios `iam-service` y `p
 URLs principales:
 
 ```text
+Gateway health:  http://localhost:8080/actuator/health
+Gateway Swagger: http://localhost:8080/swagger-ui.html
 IAM health:      http://localhost:8081/actuator/health
 IAM Swagger:     http://localhost:8081/swagger-ui.html
 Profiles health: http://localhost:8082/actuator/health
@@ -61,7 +64,9 @@ El orden correcto es:
 3. Validar iam-service
 4. Levantar profiles-service
 5. Validar profiles-service
-6. Ejecutar pruebas Karate o probar endpoints manualmente
+6. Levantar api-gateway
+7. Validar api-gateway
+8. Ejecutar pruebas Karate o probar endpoints manualmente
 ```
 
 No levantes `profiles-service` antes de `iam-service`, porque Profiles usa IAM para validar tokens JWT y consultar usuarios.
@@ -161,11 +166,49 @@ Abrir Swagger:
 http://localhost:8082/swagger-ui.html
 ```
 
-## 7. Verificar que los puertos estan ocupados
+## 7. Levantar api-gateway en puerto 8080
+
+Primero confirma que IAM y Profiles ya estan en `UP`.
+
+Luego abre otra terminal nueva en la raiz del repositorio y ejecuta:
+
+```powershell
+.\mvnw.cmd -f services/api-gateway/pom.xml spring-boot:run
+```
+
+Esperar un mensaje similar:
+
+```text
+Tomcat started on port 8080
+Started ApiGatewayApplication
+```
+
+Validar health:
+
+```powershell
+Invoke-RestMethod http://localhost:8080/actuator/health
+```
+
+Resultado esperado:
+
+```json
+{
+  "status": "UP"
+}
+```
+
+Abrir Swagger consolidado:
+
+```text
+http://localhost:8080/swagger-ui.html
+```
+
+## 8. Verificar que los puertos estan ocupados
 
 Puedes validar los puertos con PowerShell:
 
 ```powershell
+Get-NetTCPConnection -LocalPort 8080
 Get-NetTCPConnection -LocalPort 8081
 Get-NetTCPConnection -LocalPort 8082
 Get-NetTCPConnection -LocalPort 5433
@@ -174,9 +217,9 @@ Get-NetTCPConnection -LocalPort 5672
 
 Si un comando devuelve informacion, ese puerto esta en uso.
 
-## 8. Ejecutar pruebas Karate despues de levantar ambos servicios
+## 9. Ejecutar pruebas Karate despues de levantar los servicios
 
-Cuando Docker, IAM y Profiles esten activos, puedes ejecutar todas las pruebas:
+Cuando Docker, IAM, Profiles y Gateway esten activos, puedes ejecutar todas las pruebas:
 
 ```powershell
 .\mvnw.cmd -f tests/api-tests/pom.xml test
@@ -194,15 +237,21 @@ Solo Profiles:
 .\mvnw.cmd -f tests/api-tests/pom.xml "-Dtest=ProfilesRunner" test
 ```
 
+Solo Gateway:
+
+```powershell
+.\mvnw.cmd -f tests/api-tests/pom.xml "-Dtest=GatewayRunner" test
+```
+
 Guia completa de Karate:
 
 ```text
 docs/GUIA_KARATE_API_TESTS_EJECUCION.md
 ```
 
-## 9. Apagar servicios
+## 10. Apagar servicios
 
-Para detener `iam-service` y `profiles-service`, ir a cada terminal donde estan corriendo y presionar:
+Para detener `iam-service`, `profiles-service` y `api-gateway`, ir a cada terminal donde estan corriendo y presionar:
 
 ```text
 Ctrl + C
@@ -222,7 +271,7 @@ docker compose -f docker/docker-compose.yml down -v
 
 Usa `down -v` solo si quieres limpiar datos locales y empezar desde cero.
 
-## 10. Errores comunes
+## 11. Errores comunes
 
 ### Error: Connection to localhost:5433 refused
 
@@ -260,6 +309,15 @@ Solucion:
 - Detener el proceso anterior desde IntelliJ o con `Ctrl + C`.
 - Si estaba corriendo como Spring Boot en IntelliJ, presionar `Stop`.
 
+Para identificar que proceso ocupa el puerto:
+
+```powershell
+$pid8081 = (Get-NetTCPConnection -LocalPort 8081 -State Listen).OwningProcess
+Get-Process -Id $pid8081
+```
+
+Si no es `iam-service`, detenlo o ejecuta IAM en otro puerto y actualiza `IAM_SERVICE_URL` / `IAM_JWK_SET_URI` en Profiles y Gateway.
+
 ### Error: Port 8082 already in use
 
 Causa:
@@ -278,6 +336,25 @@ Solucion:
 
 - Detener el proceso anterior desde IntelliJ o con `Ctrl + C`.
 - Si estaba corriendo como Spring Boot en IntelliJ, presionar `Stop`.
+
+### Error: Port 8080 already in use
+
+Causa:
+
+```text
+Ya existe otro proceso usando el puerto de api-gateway.
+```
+
+Validar:
+
+```powershell
+Get-NetTCPConnection -LocalPort 8080
+```
+
+Solucion:
+
+- Detener el proceso anterior desde IntelliJ o con `Ctrl + C`.
+- Ejecutar el gateway en otro puerto con `SERVER_PORT`.
 
 ### Error en Profiles relacionado a JWKS o JWT
 
@@ -337,7 +414,7 @@ File > Project Structure > Project SDK > Java 21
 
 Tambien valida que las configuraciones de Spring Boot usen Java 21.
 
-## 11. Resumen rapido
+## 12. Resumen rapido
 
 Comandos principales desde la raiz del repo:
 
@@ -345,11 +422,13 @@ Comandos principales desde la raiz del repo:
 docker compose -f docker/docker-compose.yml up -d
 .\mvnw.cmd -f services/iam-service/pom.xml spring-boot:run
 .\mvnw.cmd -f services/profiles-service/pom.xml spring-boot:run
+.\mvnw.cmd -f services/api-gateway/pom.xml spring-boot:run
 ```
 
 Validaciones:
 
 ```powershell
+Invoke-RestMethod http://localhost:8080/actuator/health
 Invoke-RestMethod http://localhost:8081/actuator/health
 Invoke-RestMethod http://localhost:8082/actuator/health
 ```

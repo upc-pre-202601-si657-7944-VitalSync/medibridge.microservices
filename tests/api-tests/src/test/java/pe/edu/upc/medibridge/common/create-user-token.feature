@@ -3,6 +3,7 @@ Feature: Create an IAM user and issue a JWT
 
   Scenario: Create user and sign in
     * url iamBaseUrl
+    * configure headers = { X-Internal-Token: '#(internalToken)' }
     * def uuid = java.util.UUID.randomUUID().toString()
     * def username = 'karate_' + uuid
     * def password = 'Test123456!'

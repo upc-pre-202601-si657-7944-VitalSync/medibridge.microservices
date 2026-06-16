@@ -40,6 +40,11 @@ authorization:
     private-key: ${IAM_JWT_PRIVATE_KEY:}
     public-key: ${IAM_JWT_PUBLIC_KEY:}
 
+services:
+  internal:
+    header-name: ${INTERNAL_SERVICE_HEADER:X-Internal-Token}
+    token: ${INTERNAL_SERVICE_TOKEN:local-internal-token}
+
 management:
   endpoints:
     web:

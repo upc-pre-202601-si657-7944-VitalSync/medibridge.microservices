@@ -11,6 +11,7 @@ Las evidencias deben demostrar:
 - Que los microservicios requeridos estan levantados.
 - Que las pruebas de IAM pasan.
 - Que las pruebas de Profiles pasan.
+- Que las pruebas del API Gateway pasan.
 - Que el reporte HTML de Karate muestra resultados exitosos.
 
 ## 2. Evidencia de estructura del proyecto
@@ -26,6 +27,8 @@ Debe verse:
 ```text
 MedibridgeApiTest.java
 common/create-user-token.feature
+gateway/GatewayRunner.java
+gateway/gateway.feature
 iam/IamRunner.java
 iam/iam.feature
 profiles/ProfilesRunner.java
@@ -70,6 +73,8 @@ Captura recomendada:
 
 - `iamBaseUrl`.
 - `profilesBaseUrl`.
+- `gatewayUrl`.
+- `gatewayBaseUrl`.
 
 Uso en el informe:
 
@@ -142,6 +147,28 @@ Uso en el informe:
 
 ```text
 Figura X. Health check exitoso de `profiles-service`.
+```
+
+### Captura de health API Gateway
+
+Comando:
+
+```powershell
+Invoke-RestMethod http://localhost:8080/actuator/health
+```
+
+Resultado esperado:
+
+```json
+{
+  "status": "UP"
+}
+```
+
+Uso en el informe:
+
+```text
+Figura X. Health check exitoso de `api-gateway`.
 ```
 
 ## 6. Evidencias de pruebas IAM
@@ -276,7 +303,73 @@ Uso en el informe:
 Figura X. Reporte HTML de Karate para los escenarios de Profiles.
 ```
 
-## 8. Evidencia del suite completo
+## 8. Evidencias de pruebas API Gateway
+
+### Archivo a mostrar
+
+Abrir:
+
+```text
+tests/api-tests/src/test/java/pe/edu/upc/medibridge/gateway/gateway.feature
+```
+
+Capturas recomendadas:
+
+1. Parte superior del archivo con `Feature: API Gateway routing`.
+2. Escenario `Route IAM authentication and protected users endpoints`.
+3. Escenario `Route Profiles endpoints with a gateway-issued token`.
+4. Escenario `Block internal endpoints at the gateway`.
+5. Escenario `Expose proxied OpenAPI docs for downstream services`.
+
+Uso en el informe:
+
+```text
+Figura X. Feature de Karate para pruebas de aceptacion del API Gateway.
+```
+
+### Ejecutar solo Gateway
+
+Comando:
+
+```powershell
+.\mvnw.cmd -f tests/api-tests/pom.xml "-Dtest=GatewayRunner" test
+```
+
+Captura esperada:
+
+```text
+feature: classpath:pe/edu/upc/medibridge/gateway/gateway.feature
+scenarios: 4 | passed: 4 | failed: 0
+BUILD SUCCESS
+```
+
+Uso en el informe:
+
+```text
+Figura X. Ejecucion exitosa de las pruebas Karate para `api-gateway`.
+```
+
+### Reporte HTML Gateway
+
+Despues de ejecutar las pruebas, abrir:
+
+```text
+tests/api-tests/target/karate-reports/pe.edu.upc.medibridge.gateway.gateway.html
+```
+
+Capturas recomendadas:
+
+- Cabecera del reporte con nombre de feature.
+- Tabla de escenarios mostrando estado `passed`.
+- Resumen donde figure `failed: 0`.
+
+Uso en el informe:
+
+```text
+Figura X. Reporte HTML de Karate para los escenarios del API Gateway.
+```
+
+## 9. Evidencia del suite completo
 
 Ejecutar:
 
@@ -287,9 +380,9 @@ Ejecutar:
 Captura esperada:
 
 ```text
-features:     2
-scenarios:   12
-passed:      12
+features:     3
+scenarios:   16
+passed:      16
 failed:       0
 BUILD SUCCESS
 ```
@@ -303,16 +396,16 @@ tests/api-tests/target/karate-reports/karate-summary.html
 Capturas recomendadas:
 
 - Resumen general de Karate.
-- Lista de features `iam.feature` y `profiles.feature`.
+- Lista de features `iam.feature`, `profiles.feature` y `gateway.feature`.
 - Indicador de `failed: 0`.
 
 Uso en el informe:
 
 ```text
-Figura X. Resumen general de pruebas Karate para los microservicios IAM y Profiles.
+Figura X. Resumen general de pruebas Karate para IAM, Profiles y API Gateway.
 ```
 
-## 9. Tabla sugerida para documentacion
+## 10. Tabla sugerida para documentacion
 
 Puedes usar esta tabla como base en el informe:
 
@@ -330,8 +423,12 @@ Puedes usar esta tabla como base en el informe:
 | PRO-05 | Profiles | `profiles.feature` | Assign doctor and family member to a patient | `POST /profiles/patients/{id}/doctors/{id}`, `POST /profiles/patients/{id}/family-members/{id}` | `201`, relaciones activas |
 | PRO-06 | Profiles | `profiles.feature` | Reject duplicate doctor profile for the same IAM user | `POST /profiles/doctors` | `409` |
 | PRO-07 | Profiles | `profiles.feature` | Return not found for missing profile resources | `GET /profiles/patients/{id}` | `404` |
+| GW-01 | Gateway | `gateway.feature` | Route IAM authentication and protected users endpoints | `POST /authentication/sign-up`, `GET /users/{id}` via gateway | `201`, `200` |
+| GW-02 | Gateway | `gateway.feature` | Route Profiles endpoints with a gateway-issued token | `POST /profiles/patients`, `POST /profiles/doctors` via gateway | `201`, rutas enrutadas |
+| GW-03 | Gateway | `gateway.feature` | Block internal endpoints at the gateway | `GET /internal/**` via gateway | `403` |
+| GW-04 | Gateway | `gateway.feature` | Expose proxied OpenAPI docs | `GET /docs/iam/v3/api-docs`, `GET /docs/profiles/v3/api-docs` | `200`, OpenAPI JSON |
 
-## 10. Commits para la seccion de Testing
+## 11. Commits para la seccion de Testing
 
 Para evidenciar commits en el informe:
 

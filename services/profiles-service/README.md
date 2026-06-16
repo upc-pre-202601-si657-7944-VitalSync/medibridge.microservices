@@ -36,6 +36,9 @@ Microservicio de perfiles de MediBridge. Es responsable de pacientes, doctores, 
 - `RABBITMQ_PORT`: por defecto `5672`
 - `RABBITMQ_USER`: por defecto `medibridge`
 - `RABBITMQ_PASSWORD`: por defecto `medibridge`
+- `INTERNAL_SERVICE_TOKEN`: token compartido para aceptar trafico desde `api-gateway` y llamar endpoints internos de IAM. Por defecto `local-internal-token`.
+
+Los endpoints de negocio y Swagger requieren `X-Internal-Token`. El gateway lo agrega automaticamente. El health check `/actuator/health` queda abierto para validaciones y Render.
 
 ## Build
 

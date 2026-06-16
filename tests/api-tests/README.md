@@ -1,6 +1,6 @@
 # MediBridge API Tests
 
-Karate integration and acceptance tests for `iam-service` and `profiles-service`.
+Karate integration and acceptance tests for `iam-service`, `profiles-service`, and `api-gateway`.
 
 ## Prerequisites
 
@@ -18,6 +18,10 @@ Start the microservices in separate terminals:
 
 ```powershell
 .\mvnw.cmd -f services/profiles-service/pom.xml spring-boot:run
+```
+
+```powershell
+.\mvnw.cmd -f services/api-gateway/pom.xml spring-boot:run
 ```
 
 ## Run Tests
@@ -39,10 +43,12 @@ Default URLs are configured in `src/test/java/karate-config.js`:
 ```text
 iamBaseUrl=http://localhost:8081/api/v1
 profilesBaseUrl=http://localhost:8082/api/v1
+gatewayUrl=http://localhost:8080
+gatewayBaseUrl=http://localhost:8080/api/v1
 ```
 
 Override them with Maven properties when needed:
 
 ```powershell
-.\mvnw.cmd -f tests/api-tests/pom.xml test "-Diam.baseUrl=http://localhost:8081/api/v1" "-Dprofiles.baseUrl=http://localhost:8082/api/v1"
+.\mvnw.cmd -f tests/api-tests/pom.xml test "-Diam.baseUrl=http://localhost:8081/api/v1" "-Dprofiles.baseUrl=http://localhost:8082/api/v1" "-Dgateway.url=http://localhost:8080" "-Dgateway.baseUrl=http://localhost:8080/api/v1"
 ```

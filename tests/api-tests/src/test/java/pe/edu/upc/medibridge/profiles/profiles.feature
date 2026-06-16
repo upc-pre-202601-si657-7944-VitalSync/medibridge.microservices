@@ -3,6 +3,7 @@ Feature: Profiles Service API
   Background:
     * def auth = call read('classpath:pe/edu/upc/medibridge/common/create-user-token.feature')
     * url profilesBaseUrl
+    * configure headers = { X-Internal-Token: '#(internalToken)' }
     * def uuid = java.util.UUID.randomUUID().toString()
     * def fullNameSuffix = uuid.substring(0, 8)
 

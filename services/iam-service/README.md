@@ -23,8 +23,11 @@ Necesitas PostgreSQL y RabbitMQ disponibles. No hay API keys obligatorias para c
 - `RABBITMQ_PASSWORD`: por defecto `medibridge`
 - `IAM_JWT_PRIVATE_KEY`: opcional, clave RSA privada PKCS8 en PEM o Base64 DER
 - `IAM_JWT_PUBLIC_KEY`: opcional, clave RSA publica X509 en PEM o Base64 DER
+- `INTERNAL_SERVICE_TOKEN`: token compartido para aceptar trafico desde `api-gateway` y otros servicios internos. Por defecto `local-internal-token`.
 
 Si no configuras las claves RSA, el servicio genera un par efimero al iniciar. Eso sirve para desarrollo, pero en Docker/produccion debes configurar claves estables para que los JWT no se invaliden al reiniciar.
+
+Los endpoints de negocio y Swagger requieren `X-Internal-Token`. El health check `/actuator/health` queda abierto para validaciones y Render.
 
 ## Build
 

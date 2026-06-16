@@ -40,6 +40,9 @@ spring:
 services:
   iam:
     url: ${IAM_SERVICE_URL:http://localhost:8081}
+  internal:
+    header-name: ${INTERNAL_SERVICE_HEADER:X-Internal-Token}
+    token: ${INTERNAL_SERVICE_TOKEN:local-internal-token}
 
 management:
   endpoints:

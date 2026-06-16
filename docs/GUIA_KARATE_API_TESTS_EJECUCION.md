@@ -1,6 +1,6 @@
 # Guia de ejecucion de Karate API Tests
 
-Esta guia explica como ejecutar las pruebas de integracion/aceptacion con Karate para los microservicios `iam-service` y `profiles-service`.
+Esta guia explica como ejecutar las pruebas de integracion/aceptacion con Karate para los microservicios `iam-service`, `profiles-service` y `api-gateway`.
 
 ## 1. Estructura creada
 
@@ -16,6 +16,8 @@ tests/api-tests/
     pe/edu/upc/medibridge/
       MedibridgeApiTest.java
       common/create-user-token.feature
+      gateway/GatewayRunner.java
+      gateway/gateway.feature
       iam/IamRunner.java
       iam/iam.feature
       profiles/ProfilesRunner.java
@@ -68,6 +70,20 @@ Ejecuta:
 tests/api-tests/src/test/java/pe/edu/upc/medibridge/profiles/profiles.feature
 ```
 
+### Runner de Gateway
+
+Archivo:
+
+```text
+tests/api-tests/src/test/java/pe/edu/upc/medibridge/gateway/GatewayRunner.java
+```
+
+Ejecuta:
+
+```text
+tests/api-tests/src/test/java/pe/edu/upc/medibridge/gateway/gateway.feature
+```
+
 ### Configuracion de URLs
 
 Archivo:
@@ -81,6 +97,8 @@ Valores por defecto:
 ```js
 iamBaseUrl: 'http://localhost:8081/api/v1'
 profilesBaseUrl: 'http://localhost:8082/api/v1'
+gatewayUrl: 'http://localhost:8080'
+gatewayBaseUrl: 'http://localhost:8080/api/v1'
 ```
 
 ## 3. Requisitos previos
@@ -91,6 +109,7 @@ Antes de ejecutar Karate deben estar activos:
 2. PostgreSQL y RabbitMQ mediante `docker-compose`.
 3. `iam-service` en el puerto `8081`.
 4. `profiles-service` en el puerto `8082`.
+5. `api-gateway` en el puerto `8080`.
 
 ## 3.1. Configurar IntelliJ si no deja ejecutar los runners
 
@@ -146,7 +165,13 @@ Para correr desde IntelliJ sin depender del boton verde del archivo:
 -f tests/api-tests/pom.xml -Dtest=ProfilesRunner test
 ```
 
-6. Para todo el suite, usar este comando:
+6. Para Gateway, usar este comando:
+
+```text
+-f tests/api-tests/pom.xml -Dtest=GatewayRunner test
+```
+
+7. Para todo el suite, usar este comando:
 
 ```text
 -f tests/api-tests/pom.xml test
@@ -259,6 +284,33 @@ Resultado esperado:
 }
 ```
 
+### Terminal 3: API Gateway
+
+```powershell
+.\mvnw.cmd -f services/api-gateway/pom.xml spring-boot:run
+```
+
+Esperar un mensaje similar:
+
+```text
+Tomcat started on port 8080
+Started ApiGatewayApplication
+```
+
+Validar health:
+
+```powershell
+Invoke-RestMethod http://localhost:8080/actuator/health
+```
+
+Resultado esperado:
+
+```json
+{
+  "status": "UP"
+}
+```
+
 ## 6. Ejecutar todas las pruebas Karate
 
 En una tercera terminal, desde la raiz del repositorio:
@@ -270,9 +322,9 @@ En una tercera terminal, desde la raiz del repositorio:
 Resultado esperado:
 
 ```text
-features:     2
-scenarios:   12
-passed:      12
+features:     3
+scenarios:   16
+passed:      16
 failed:       0
 BUILD SUCCESS
 ```
@@ -305,7 +357,21 @@ scenarios: 7 | passed: 7 | failed: 0
 BUILD SUCCESS
 ```
 
-## 9. Reportes generados
+## 9. Ejecutar solo pruebas de Gateway
+
+```powershell
+.\mvnw.cmd -f tests/api-tests/pom.xml "-Dtest=GatewayRunner" test
+```
+
+Resultado esperado:
+
+```text
+feature: classpath:pe/edu/upc/medibridge/gateway/gateway.feature
+scenarios: 4 | passed: 4 | failed: 0
+BUILD SUCCESS
+```
+
+## 10. Reportes generados
 
 Despues de ejecutar Karate se genera:
 
@@ -324,9 +390,10 @@ Tambien se generan reportes por feature:
 ```text
 tests/api-tests/target/karate-reports/pe.edu.upc.medibridge.iam.iam.html
 tests/api-tests/target/karate-reports/pe.edu.upc.medibridge.profiles.profiles.html
+tests/api-tests/target/karate-reports/pe.edu.upc.medibridge.gateway.gateway.html
 ```
 
-## 10. Que hace cada feature
+## 11. Que hace cada feature
 
 ### `iam.feature`
 
@@ -365,7 +432,22 @@ Escenarios incluidos:
 - Validar conflicto `409` al crear perfil doctor duplicado.
 - Validar `404` para paciente inexistente.
 
-## 11. Apagar entorno
+### `gateway.feature`
+
+Archivo:
+
+```text
+tests/api-tests/src/test/java/pe/edu/upc/medibridge/gateway/gateway.feature
+```
+
+Escenarios incluidos:
+
+- Enrutar autenticacion y consulta de usuarios de IAM por el gateway.
+- Enrutar creacion y consulta de perfiles por el gateway usando token emitido desde el gateway.
+- Bloquear endpoints internos `/api/v1/internal/**` desde el gateway.
+- Exponer los OpenAPI JSON de IAM y Profiles proxied por el gateway.
+
+## 12. Apagar entorno
 
 Detener microservicios:
 
@@ -373,7 +455,7 @@ Detener microservicios:
 Ctrl + C
 ```
 
-en cada terminal donde esten corriendo `iam-service` y `profiles-service`.
+en cada terminal donde esten corriendo `iam-service`, `profiles-service` y `api-gateway`.
 
 Detener Docker:
 

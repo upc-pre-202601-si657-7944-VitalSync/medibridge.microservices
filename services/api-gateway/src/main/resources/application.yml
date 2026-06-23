@@ -42,6 +42,30 @@ spring:
                 - Path=/api/v1/profiles/**
               filters:
                 - AddRequestHeader=X-Internal-Token, ${INTERNAL_SERVICE_TOKEN:local-internal-token}
+            - id: appointments-api
+              uri: ${APPOINTMENTS_SERVICE_URL:http://localhost:8084}
+              predicates:
+                - Path=/api/v1/appointments/**
+              filters:
+                - AddRequestHeader=X-Internal-Token, ${INTERNAL_SERVICE_TOKEN:local-internal-token}
+            - id: medication-medications-api
+              uri: ${MEDICATION_SERVICE_URL:http://localhost:8086}
+              predicates:
+                - Path=/api/v1/medications/**
+              filters:
+                - AddRequestHeader=X-Internal-Token, ${INTERNAL_SERVICE_TOKEN:local-internal-token}
+            - id: medication-schedules-api
+              uri: ${MEDICATION_SERVICE_URL:http://localhost:8086}
+              predicates:
+                - Path=/api/v1/medication-schedules/**
+              filters:
+                - AddRequestHeader=X-Internal-Token, ${INTERNAL_SERVICE_TOKEN:local-internal-token}
+            - id: medication-dose-administrations-api
+              uri: ${MEDICATION_SERVICE_URL:http://localhost:8086}
+              predicates:
+                - Path=/api/v1/dose-administrations/**
+              filters:
+                - AddRequestHeader=X-Internal-Token, ${INTERNAL_SERVICE_TOKEN:local-internal-token}
             - id: iam-openapi-docs
               uri: ${IAM_SERVICE_URL:http://localhost:8081}
               predicates:
@@ -53,6 +77,20 @@ spring:
               uri: ${PROFILES_SERVICE_URL:http://localhost:8082}
               predicates:
                 - Path=/docs/profiles/v3/api-docs
+              filters:
+                - AddRequestHeader=X-Internal-Token, ${INTERNAL_SERVICE_TOKEN:local-internal-token}
+                - SetPath=/v3/api-docs
+            - id: appointments-openapi-docs
+              uri: ${APPOINTMENTS_SERVICE_URL:http://localhost:8084}
+              predicates:
+                - Path=/docs/appointments/v3/api-docs
+              filters:
+                - AddRequestHeader=X-Internal-Token, ${INTERNAL_SERVICE_TOKEN:local-internal-token}
+                - SetPath=/v3/api-docs
+            - id: medication-openapi-docs
+              uri: ${MEDICATION_SERVICE_URL:http://localhost:8086}
+              predicates:
+                - Path=/docs/medication/v3/api-docs
               filters:
                 - AddRequestHeader=X-Internal-Token, ${INTERNAL_SERVICE_TOKEN:local-internal-token}
                 - SetPath=/v3/api-docs
@@ -77,3 +115,7 @@ springdoc:
         url: /docs/iam/v3/api-docs
       - name: Profiles Service
         url: /docs/profiles/v3/api-docs
+      - name: Appointments Service
+        url: /docs/appointments/v3/api-docs
+      - name: Medication Service
+        url: /docs/medication/v3/api-docs

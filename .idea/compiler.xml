@@ -24,14 +24,18 @@
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.40/lombok-1.18.40.jar" />
         </processorPath>
+        <module name="appointments-service" />
         <module name="iam-service" />
+        <module name="medication-service" />
         <module name="profiles-service" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="appointments-service" options="-parameters" />
       <module name="iam-service" options="-parameters" />
+      <module name="medication-service" options="-parameters" />
       <module name="microservices" options="-parameters" />
       <module name="profiles-service" options="-parameters" />
     </option>

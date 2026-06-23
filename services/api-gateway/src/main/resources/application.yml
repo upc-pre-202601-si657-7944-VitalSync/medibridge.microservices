@@ -42,10 +42,34 @@ spring:
                 - Path=/api/v1/profiles/**
               filters:
                 - AddRequestHeader=X-Internal-Token, ${INTERNAL_SERVICE_TOKEN:local-internal-token}
+            - id: payments-subscriptions-api
+              uri: ${PAYMENTS_SERVICE_URL:http://localhost:8083}
+              predicates:
+                - Path=/api/v1/subscriptions,/api/v1/subscriptions/**
+              filters:
+                - AddRequestHeader=X-Internal-Token, ${INTERNAL_SERVICE_TOKEN:local-internal-token}
+            - id: payments-invoices-api
+              uri: ${PAYMENTS_SERVICE_URL:http://localhost:8083}
+              predicates:
+                - Path=/api/v1/invoices/**
+              filters:
+                - AddRequestHeader=X-Internal-Token, ${INTERNAL_SERVICE_TOKEN:local-internal-token}
+            - id: payments-stripe-webhooks-api
+              uri: ${PAYMENTS_SERVICE_URL:http://localhost:8083}
+              predicates:
+                - Path=/api/v1/stripe-webhooks,/api/v1/stripe-webhooks/**
+              filters:
+                - AddRequestHeader=X-Internal-Token, ${INTERNAL_SERVICE_TOKEN:local-internal-token}
             - id: appointments-api
               uri: ${APPOINTMENTS_SERVICE_URL:http://localhost:8084}
               predicates:
                 - Path=/api/v1/appointments/**
+              filters:
+                - AddRequestHeader=X-Internal-Token, ${INTERNAL_SERVICE_TOKEN:local-internal-token}
+            - id: healthmonitoring-api
+              uri: ${HEALTHMONITORING_SERVICE_URL:http://localhost:8085}
+              predicates:
+                - Path=/api/v1/health-monitoring/**
               filters:
                 - AddRequestHeader=X-Internal-Token, ${INTERNAL_SERVICE_TOKEN:local-internal-token}
             - id: medication-medications-api
@@ -66,6 +90,18 @@ spring:
                 - Path=/api/v1/dose-administrations/**
               filters:
                 - AddRequestHeader=X-Internal-Token, ${INTERNAL_SERVICE_TOKEN:local-internal-token}
+            - id: reports-clinical-reports-api
+              uri: ${REPORTS_ANALYTICS_SERVICE_URL:http://localhost:8087}
+              predicates:
+                - Path=/api/v1/clinical-reports/**
+              filters:
+                - AddRequestHeader=X-Internal-Token, ${INTERNAL_SERVICE_TOKEN:local-internal-token}
+            - id: reports-analytics-dashboards-api
+              uri: ${REPORTS_ANALYTICS_SERVICE_URL:http://localhost:8087}
+              predicates:
+                - Path=/api/v1/analytics-dashboards/**
+              filters:
+                - AddRequestHeader=X-Internal-Token, ${INTERNAL_SERVICE_TOKEN:local-internal-token}
             - id: iam-openapi-docs
               uri: ${IAM_SERVICE_URL:http://localhost:8081}
               predicates:
@@ -80,6 +116,13 @@ spring:
               filters:
                 - AddRequestHeader=X-Internal-Token, ${INTERNAL_SERVICE_TOKEN:local-internal-token}
                 - SetPath=/v3/api-docs
+            - id: payments-openapi-docs
+              uri: ${PAYMENTS_SERVICE_URL:http://localhost:8083}
+              predicates:
+                - Path=/docs/payments/v3/api-docs
+              filters:
+                - AddRequestHeader=X-Internal-Token, ${INTERNAL_SERVICE_TOKEN:local-internal-token}
+                - SetPath=/v3/api-docs
             - id: appointments-openapi-docs
               uri: ${APPOINTMENTS_SERVICE_URL:http://localhost:8084}
               predicates:
@@ -87,10 +130,24 @@ spring:
               filters:
                 - AddRequestHeader=X-Internal-Token, ${INTERNAL_SERVICE_TOKEN:local-internal-token}
                 - SetPath=/v3/api-docs
+            - id: healthmonitoring-openapi-docs
+              uri: ${HEALTHMONITORING_SERVICE_URL:http://localhost:8085}
+              predicates:
+                - Path=/docs/healthmonitoring/v3/api-docs
+              filters:
+                - AddRequestHeader=X-Internal-Token, ${INTERNAL_SERVICE_TOKEN:local-internal-token}
+                - SetPath=/v3/api-docs
             - id: medication-openapi-docs
               uri: ${MEDICATION_SERVICE_URL:http://localhost:8086}
               predicates:
                 - Path=/docs/medication/v3/api-docs
+              filters:
+                - AddRequestHeader=X-Internal-Token, ${INTERNAL_SERVICE_TOKEN:local-internal-token}
+                - SetPath=/v3/api-docs
+            - id: reports-analytics-openapi-docs
+              uri: ${REPORTS_ANALYTICS_SERVICE_URL:http://localhost:8087}
+              predicates:
+                - Path=/docs/reports-analytics/v3/api-docs
               filters:
                 - AddRequestHeader=X-Internal-Token, ${INTERNAL_SERVICE_TOKEN:local-internal-token}
                 - SetPath=/v3/api-docs
@@ -115,7 +172,13 @@ springdoc:
         url: /docs/iam/v3/api-docs
       - name: Profiles Service
         url: /docs/profiles/v3/api-docs
+      - name: Payments Service
+        url: /docs/payments/v3/api-docs
       - name: Appointments Service
         url: /docs/appointments/v3/api-docs
+      - name: Health Monitoring Service
+        url: /docs/healthmonitoring/v3/api-docs
       - name: Medication Service
         url: /docs/medication/v3/api-docs
+      - name: Reports Analytics Service
+        url: /docs/reports-analytics/v3/api-docs

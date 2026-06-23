@@ -1,6 +1,12 @@
 # Guia paso a paso del API Gateway
 
-Esta guia sirve para levantar `iam-service`, `profiles-service` y `api-gateway` localmente sin errores de puertos ocupados, y luego probar que el gateway enruta correctamente.
+Esta guia sirve para levantar una prueba minima local con `iam-service`, `profiles-service` y `api-gateway` sin errores de puertos ocupados, y luego probar que el gateway enruta correctamente.
+
+Para despliegue en Render y pruebas post-deploy, usa:
+
+```text
+docs/GUIA_DESPLIEGUE_API_GATEWAY_RENDER.md
+```
 
 ## Paso 1. Ubicarse en la raiz del proyecto
 
@@ -27,10 +33,10 @@ tests
 
 ## Paso 2. Revisar si los puertos ya estan ocupados
 
-Antes de levantar servicios, revisa los puertos `8080`, `8081` y `8082`:
+Antes de levantar servicios, revisa los puertos principales:
 
 ```powershell
-Get-NetTCPConnection -LocalPort 8080,8081,8082 -State Listen -ErrorAction SilentlyContinue |
+Get-NetTCPConnection -LocalPort 8080,8081,8082,8083,8084,8085,8086,8087 -State Listen -ErrorAction SilentlyContinue |
   ForEach-Object {
     $process = Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue
     [PSCustomObject]@{
@@ -48,6 +54,7 @@ Interpretacion:
 8080 debe estar libre antes de levantar api-gateway.
 8081 debe estar libre antes de levantar iam-service.
 8082 debe estar libre antes de levantar profiles-service.
+8083-8087 deben estar libres si vas a levantar Payments, Appointments, Health Monitoring, Medication o Reports/Analytics.
 ```
 
 Si un puerto aparece ocupado por una instancia anterior de este proyecto, ve a la terminal donde esta corriendo y presiona:
@@ -72,10 +79,10 @@ No sigas al siguiente paso hasta que `8080`, `8081` y `8082` esten libres o hast
 
 ## Paso 3. Levantar PostgreSQL y RabbitMQ
 
-En la misma terminal ubicada en la raiz:
+En la misma terminal ubicada en la raiz, levanta solo infraestructura:
 
 ```powershell
-docker compose -f docker/docker-compose.yml up -d
+docker compose -f docker/docker-compose.yml up -d postgres rabbitmq
 ```
 
 Valida:
@@ -92,6 +99,21 @@ medibridge-rabbitmq   Up ... healthy
 ```
 
 Si aparece `starting`, espera unos segundos y vuelve a ejecutar el comando de validacion.
+
+Importante:
+
+```text
+No uses aqui docker compose -f docker/docker-compose.yml up -d sin nombres de servicios si tambien vas a correr microservicios con Maven.
+Ese comando levanta todo el compose, ocupa 8080-8087 y luego Maven fallara con "Port was already in use".
+```
+
+Si quieres levantar todo con Docker y no usar Maven, usa:
+
+```powershell
+docker compose -f docker/docker-compose.yml up -d --build
+```
+
+En ese caso salta los pasos manuales de Maven y prueba directamente por `http://localhost:8080`.
 
 ## Paso 4. Levantar IAM en una terminal nueva
 
@@ -313,6 +335,11 @@ Debes ver un selector con:
 ```text
 IAM Service
 Profiles Service
+Payments Service
+Appointments Service
+Health Monitoring Service
+Medication Service
+Reports Analytics Service
 ```
 
 Tambien puedes probar los JSON OpenAPI:
@@ -325,6 +352,8 @@ Invoke-RestMethod http://localhost:8080/docs/profiles/v3/api-docs
 Si falla `/docs/iam/v3/api-docs`, IAM no esta bien levantado en `8081`.
 
 Si falla `/docs/profiles/v3/api-docs`, Profiles no esta bien levantado en `8082`.
+
+En esta prueba minima solo levantaste IAM y Profiles con Maven. Los docs de Payments, Appointments, Health Monitoring, Medication y Reports/Analytics responderan cuando levantes tambien esos servicios o cuando uses Docker Compose completo.
 
 ## Paso 10. Probar login y rutas por gateway con PowerShell
 
@@ -586,6 +615,11 @@ En Render, el objetivo es:
 api-gateway publico
 iam-service privado
 profiles-service privado
+payments-service privado
+appointments-service privado
+healthmonitoring-service privado
+medication-service privado
+reports-analytics-service privado
 ```
 
 Variables del `api-gateway`:
@@ -593,6 +627,11 @@ Variables del `api-gateway`:
 ```text
 IAM_SERVICE_URL=<iam-service-service-address>
 PROFILES_SERVICE_URL=<profiles-service-service-address>
+PAYMENTS_SERVICE_URL=<payments-service-service-address>
+APPOINTMENTS_SERVICE_URL=<appointments-service-service-address>
+HEALTHMONITORING_SERVICE_URL=<healthmonitoring-service-service-address>
+MEDICATION_SERVICE_URL=<medication-service-service-address>
+REPORTS_ANALYTICS_SERVICE_URL=<reports-analytics-service-service-address>
 INTERNAL_SERVICE_TOKEN=<secret-compartido>
 ```
 

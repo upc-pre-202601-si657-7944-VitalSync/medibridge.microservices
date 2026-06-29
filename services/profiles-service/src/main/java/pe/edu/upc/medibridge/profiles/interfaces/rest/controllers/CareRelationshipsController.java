@@ -1,5 +1,11 @@
 package pe.edu.upc.medibridge.profiles.interfaces.rest.controllers;
 
+
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import pe.edu.upc.medibridge.shared.interfaces.rest.resources.ErrorResponseResource;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,6 +29,14 @@ import pe.edu.upc.medibridge.profiles.interfaces.rest.transform.FamilyPatientLin
 @RestController
 @RequestMapping(value = "/api/v1/profiles/patients/{patientId}", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Care Relationships", description = "Patient Care Relationship Endpoints")
+@ApiResponses({
+        @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "404", description = "Resource not found", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "409", description = "Conflict", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "500", description = "Unexpected server error", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class)))
+})
 public class CareRelationshipsController {
 
     private final CareRelationshipCommandService careRelationshipCommandService;
@@ -35,6 +49,7 @@ public class CareRelationshipsController {
         this.externalIamContextService = externalIamContextService;
     }
 
+    @ApiResponse(responseCode = "201", description = "Created")
     @PostMapping("/doctors/{doctorProfileId}")
     public ResponseEntity<DoctorPatientAssignmentResource> assignDoctorToPatient(
             @PathVariable Long patientId,
@@ -53,6 +68,7 @@ public class CareRelationshipsController {
         return new ResponseEntity<>(resource, HttpStatus.CREATED);
     }
 
+    @ApiResponse(responseCode = "201", description = "Created")
     @PostMapping("/family-members/{familyMemberProfileId}")
     public ResponseEntity<FamilyPatientLinkResource> linkFamilyMemberToPatient(
             @PathVariable Long patientId,
@@ -78,4 +94,3 @@ public class CareRelationshipsController {
                 .orElseThrow(() -> new InvalidProfileRequestException("Authenticated user was not found"));
     }
 }
-

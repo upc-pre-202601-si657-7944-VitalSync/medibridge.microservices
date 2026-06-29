@@ -1,5 +1,11 @@
 package pe.edu.upc.medibridge.medicationmanagement.interfaces.rest.controllers;
 
+
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import pe.edu.upc.medibridge.shared.interfaces.rest.resources.ErrorResponseResource;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,6 +31,14 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "/api/v1/dose-administrations", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Dose Administrations", description = "Dose Administration Management Endpoints")
+@ApiResponses({
+        @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "404", description = "Resource not found", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "409", description = "Conflict", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "500", description = "Unexpected server error", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class)))
+})
 public class DoseAdministrationController {
     private final DoseAdministrationCommandService doseAdministrationCommandService;
     private final DoseAdministrationQueryService doseAdministrationQueryService;
@@ -42,6 +56,7 @@ public class DoseAdministrationController {
         this.medicationRepository = medicationRepository;
     }
 
+    @ApiResponse(responseCode = "201", description = "Created")
     @PostMapping
     public ResponseEntity<DoseAdministrationResponse> recordDoseAdministration(
             @RequestBody RecordDoseAdministrationRequest resource,
@@ -56,6 +71,7 @@ public class DoseAdministrationController {
                 .orElseGet(() -> ResponseEntity.badRequest().build());
     }
 
+    @ApiResponse(responseCode = "201", description = "Created")
     @PostMapping("/skip")
     public ResponseEntity<DoseAdministrationResponse> skipDose(
             @RequestBody SkipDoseRequest resource,
@@ -83,4 +99,3 @@ public class DoseAdministrationController {
         return ResponseEntity.ok(resources);
     }
 }
-

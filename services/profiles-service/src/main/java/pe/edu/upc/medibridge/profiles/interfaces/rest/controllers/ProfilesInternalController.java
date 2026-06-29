@@ -1,5 +1,11 @@
 package pe.edu.upc.medibridge.profiles.interfaces.rest.controllers;
 
+
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import pe.edu.upc.medibridge.shared.interfaces.rest.resources.ErrorResponseResource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +24,14 @@ import pe.edu.upc.medibridge.profiles.interfaces.rest.transform.PatientProfileRe
 
 @RestController
 @RequestMapping("/api/v1/internal/profiles")
+@ApiResponses({
+        @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "404", description = "Resource not found", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "409", description = "Conflict", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "500", description = "Unexpected server error", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class)))
+})
 public class ProfilesInternalController {
     private final PatientProfileQueryService patientProfileQueryService;
     private final CareRelationshipQueryService careRelationshipQueryService;
@@ -78,4 +92,3 @@ public class ProfilesInternalController {
         return members.careTeamUserIds().contains(userId);
     }
 }
-

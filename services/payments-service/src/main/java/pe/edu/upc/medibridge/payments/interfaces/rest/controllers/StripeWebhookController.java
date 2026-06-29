@@ -1,5 +1,11 @@
 package pe.edu.upc.medibridge.payments.interfaces.rest.controllers;
 
+
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import pe.edu.upc.medibridge.shared.interfaces.rest.resources.ErrorResponseResource;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.model.Event;
 import com.stripe.model.PaymentIntent;
@@ -16,6 +22,14 @@ import pe.edu.upc.medibridge.payments.domain.model.events.PaymentFailedEvent;
 @RestController
 @RequestMapping(value = "/api/v1/stripe-webhooks", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Stripe Webhooks", description = "Stripe Webhook Endpoints")
+@ApiResponses({
+        @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "404", description = "Resource not found", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "409", description = "Conflict", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "500", description = "Unexpected server error", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class)))
+})
 public class StripeWebhookController {
     private final ApplicationEventPublisher eventPublisher;
     private final String webhookSecret;
@@ -61,4 +75,3 @@ public class StripeWebhookController {
         return Long.valueOf(value);
     }
 }
-

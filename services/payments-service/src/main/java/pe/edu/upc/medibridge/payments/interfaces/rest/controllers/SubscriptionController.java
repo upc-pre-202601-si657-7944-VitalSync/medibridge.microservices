@@ -1,5 +1,11 @@
 package pe.edu.upc.medibridge.payments.interfaces.rest.controllers;
 
+
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import pe.edu.upc.medibridge.shared.interfaces.rest.resources.ErrorResponseResource;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,6 +30,14 @@ import pe.edu.upc.medibridge.payments.interfaces.rest.transform.SubscriptionResp
 @RestController
 @RequestMapping(value = "/api/v1/subscriptions", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Subscriptions", description = "Subscription Management Endpoints")
+@ApiResponses({
+        @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "404", description = "Resource not found", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "409", description = "Conflict", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "500", description = "Unexpected server error", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class)))
+})
 public class SubscriptionController {
     private final SubscriptionCommandService subscriptionCommandService;
     private final SubscriptionQueryService subscriptionQueryService;
@@ -38,6 +52,7 @@ public class SubscriptionController {
         this.paymentMethodCommandService = paymentMethodCommandService;
     }
 
+    @ApiResponse(responseCode = "201", description = "Created")
     @PostMapping
     public ResponseEntity<SubscriptionResponse> createSubscription(@RequestBody CreateSubscriptionRequest resource) {
         var command = CreateSubscriptionCommandFromResourceAssembler.toCommandFromResource(resource);
@@ -79,6 +94,7 @@ public class SubscriptionController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @ApiResponse(responseCode = "201", description = "Created")
     @PostMapping("/payment-methods")
     public ResponseEntity<PaymentMethodResponse> addPaymentMethod(@RequestBody AddPaymentMethodRequest resource) {
         var command = AddPaymentMethodCommandFromResourceAssembler.toCommandFromResource(resource);
@@ -88,4 +104,3 @@ public class SubscriptionController {
                 .orElseGet(() -> ResponseEntity.badRequest().build());
     }
 }
-

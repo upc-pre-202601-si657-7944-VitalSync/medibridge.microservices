@@ -1,5 +1,11 @@
 package pe.edu.upc.medibridge.profiles.interfaces.rest.controllers;
 
+
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import pe.edu.upc.medibridge.shared.interfaces.rest.resources.ErrorResponseResource;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,6 +27,14 @@ import pe.edu.upc.medibridge.profiles.interfaces.rest.transform.PatientProfileRe
 @RestController
 @RequestMapping(value = "/api/v1/profiles/patients", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Patient Profiles", description = "Patient Profile Management Endpoints")
+@ApiResponses({
+        @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "404", description = "Resource not found", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "409", description = "Conflict", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "500", description = "Unexpected server error", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class)))
+})
 public class PatientProfilesController {
 
     private final PatientProfileCommandService patientProfileCommandService;
@@ -33,6 +47,7 @@ public class PatientProfilesController {
         this.patientProfileQueryService = patientProfileQueryService;
     }
 
+    @ApiResponse(responseCode = "201", description = "Created")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PatientProfileResource> createPatientProfile(
             @RequestBody CreatePatientProfileResource resource) {
@@ -61,4 +76,3 @@ public class PatientProfilesController {
         return ResponseEntity.ok(patientProfileResource);
     }
 }
-

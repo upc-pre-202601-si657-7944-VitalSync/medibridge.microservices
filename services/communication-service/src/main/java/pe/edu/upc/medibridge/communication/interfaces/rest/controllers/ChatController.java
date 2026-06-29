@@ -1,5 +1,11 @@
 package pe.edu.upc.medibridge.communication.interfaces.rest.controllers;
 
+
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import pe.edu.upc.medibridge.shared.interfaces.rest.resources.ErrorResponseResource;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,6 +30,14 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping(value = "/api/v1/chat/messages", produces = MediaType.APPLICATION_JSON_VALUE)
+@ApiResponses({
+        @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "404", description = "Resource not found", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "409", description = "Conflict", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "500", description = "Unexpected server error", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class)))
+})
 public class ChatController {
     private final ChatMessageService chatMessageService;
     private final AuthenticatedUserContextService authenticatedUserContextService;
@@ -35,6 +49,7 @@ public class ChatController {
         this.authenticatedUserContextService = authenticatedUserContextService;
     }
 
+    @ApiResponse(responseCode = "201", description = "Created")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ChatMessageResource> sendMessage(
             @Valid @RequestBody SendChatMessageResource resource,
@@ -65,4 +80,3 @@ public class ChatController {
         return ResponseEntity.ok(messages);
     }
 }
-

@@ -1,5 +1,11 @@
 package pe.edu.upc.medibridge.healthmonitoring.interfaces.rest.controllers;
 
+
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import pe.edu.upc.medibridge.shared.interfaces.rest.resources.ErrorResponseResource;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -34,6 +40,14 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "/api/v1/health-monitoring/patients/{patientId}", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Health Monitoring", description = "Patient Health Monitoring Endpoints")
+@ApiResponses({
+        @ApiResponse(responseCode = "400", description = "Invalid request", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "401", description = "Unauthorized"),
+        @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "404", description = "Resource not found", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "409", description = "Conflict", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "500", description = "Unexpected server error", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class)))
+})
 public class HealthMonitoringController {
 
     private final HealthObservationCommandService healthObservationCommandService;
@@ -61,6 +75,7 @@ public class HealthMonitoringController {
         this.patientHealthSummaryQueryService = patientHealthSummaryQueryService;
     }
 
+    @ApiResponse(responseCode = "201", description = "Created")
     @PostMapping(value = "/observations", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PatientHealthObservationResource> recordHealthObservation(
             @PathVariable Long patientId,
@@ -115,4 +130,3 @@ public class HealthMonitoringController {
         return ResponseEntity.ok(new PatientHealthSummaryResource(patientId, summary));
     }
 }
-

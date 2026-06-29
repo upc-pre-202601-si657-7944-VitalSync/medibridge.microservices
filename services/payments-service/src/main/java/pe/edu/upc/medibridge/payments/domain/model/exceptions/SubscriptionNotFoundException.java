@@ -5,3 +5,4 @@ public class SubscriptionNotFoundException extends RuntimeException {
         super("Subscription not found with id: " + subscriptionId);
     }
 }
+

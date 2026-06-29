@@ -5,3 +5,4 @@ public class SubscriptionAlreadyActiveException extends RuntimeException {
         super("User already has an active subscription: " + userId);
     }
 }
+

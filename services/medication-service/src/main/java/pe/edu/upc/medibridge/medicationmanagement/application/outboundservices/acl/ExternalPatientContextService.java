@@ -3,3 +3,4 @@ package pe.edu.upc.medibridge.medicationmanagement.application.outboundservices.
 public interface ExternalPatientContextService {
     boolean patientExists(Long patientId);
 }
+

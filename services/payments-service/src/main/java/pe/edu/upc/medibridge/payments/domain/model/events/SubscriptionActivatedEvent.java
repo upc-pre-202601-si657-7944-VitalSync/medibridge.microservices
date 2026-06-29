@@ -7,3 +7,4 @@ public record SubscriptionActivatedEvent(Long subscriptionId, Long userId, Insta
         this(subscriptionId, userId, Instant.now(), 1);
     }
 }
+

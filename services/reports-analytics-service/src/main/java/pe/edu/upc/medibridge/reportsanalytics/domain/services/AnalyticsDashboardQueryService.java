@@ -6,3 +6,4 @@ import pe.edu.upc.medibridge.reportsanalytics.domain.model.queries.GetAnalyticsD
 public interface AnalyticsDashboardQueryService {
     AnalyticsDashboard handle(GetAnalyticsDashboardQuery query);
 }
+

@@ -26,3 +26,4 @@ public class PatientDeactivatedEventHandler {
         LOGGER.info("Patient deactivation received by health monitoring: patientId={}", event.patientId());
     }
 }
+

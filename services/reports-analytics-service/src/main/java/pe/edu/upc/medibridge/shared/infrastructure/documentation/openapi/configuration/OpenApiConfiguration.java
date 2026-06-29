@@ -43,3 +43,4 @@ public class OpenApiConfiguration {
         return new ExternalDocumentation().description("MediBridge Microservices Documentation");
     }
 }
+

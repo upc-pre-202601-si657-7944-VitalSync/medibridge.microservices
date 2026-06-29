@@ -11,3 +11,4 @@ public record Money(BigDecimal amount, String currency) {
         Currency.getInstance(currency);
     }
 }
+

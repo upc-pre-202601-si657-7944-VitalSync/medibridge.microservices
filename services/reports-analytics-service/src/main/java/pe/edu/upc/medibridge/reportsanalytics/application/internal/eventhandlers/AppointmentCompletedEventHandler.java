@@ -16,3 +16,4 @@ public class AppointmentCompletedEventHandler {
         LOGGER.info("Appointment scheduled event received by reports analytics: {}", event);
     }
 }
+

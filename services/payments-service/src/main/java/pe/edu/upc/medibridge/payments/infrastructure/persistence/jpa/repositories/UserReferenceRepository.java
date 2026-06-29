@@ -8,3 +8,4 @@ import pe.edu.upc.medibridge.payments.domain.model.entities.UserReference;
 public interface UserReferenceRepository extends JpaRepository<UserReference, Long> {
     boolean existsByUserId(Long userId);
 }
+

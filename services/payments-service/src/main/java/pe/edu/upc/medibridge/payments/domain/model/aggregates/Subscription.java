@@ -56,3 +56,4 @@ public class Subscription extends AuditableAbstractAggregateRoot<Subscription> {
         return SubscriptionStatus.ACTIVE.equals(status) || SubscriptionStatus.TRIALING.equals(status);
     }
 }
+

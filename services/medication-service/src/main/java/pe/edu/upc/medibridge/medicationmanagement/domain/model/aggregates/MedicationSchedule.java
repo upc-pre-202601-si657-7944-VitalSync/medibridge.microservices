@@ -53,3 +53,4 @@ public class MedicationSchedule extends AuditableAbstractAggregateRoot<Medicatio
         this.active = false;
     }
 }
+

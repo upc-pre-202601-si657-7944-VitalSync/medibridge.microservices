@@ -8,3 +8,4 @@ import java.util.Optional;
 public interface FamilyMemberProfileQueryService {
     Optional<FamilyMemberProfile> handle(GetFamilyMemberProfileByIdQuery query);
 }
+

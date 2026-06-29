@@ -9,3 +9,4 @@ public class ReportNotFoundException extends RuntimeException {
         super("Clinical report not found with id: " + reportId);
     }
 }
+

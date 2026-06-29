@@ -7,3 +7,4 @@ public record ReportId(Integer value) {
         }
     }
 }
+

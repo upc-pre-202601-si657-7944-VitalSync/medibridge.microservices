@@ -52,3 +52,4 @@ public class AppointmentContextFacade {
                 .collect(Collectors.joining(" "));
     }
 }
+

@@ -9,3 +9,4 @@ public class InvalidUserReferenceException extends RuntimeException {
         super("User reference not found: " + userId);
     }
 }
+

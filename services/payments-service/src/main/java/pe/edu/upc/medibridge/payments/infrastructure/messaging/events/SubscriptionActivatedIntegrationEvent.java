@@ -13,3 +13,4 @@ public record SubscriptionActivatedIntegrationEvent(
         this(userId, subscriptionId, "ACTIVE", Instant.now(), 1);
     }
 }
+

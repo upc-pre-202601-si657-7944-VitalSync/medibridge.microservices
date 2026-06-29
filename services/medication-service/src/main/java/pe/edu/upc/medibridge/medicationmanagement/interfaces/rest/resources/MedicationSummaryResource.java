@@ -6,3 +6,4 @@ public record MedicationSummaryResource(
         int lowStockMedications,
         long doseAdministrations) {
 }
+

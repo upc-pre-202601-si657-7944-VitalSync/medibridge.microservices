@@ -5,3 +5,4 @@ public class InsufficientStockException extends RuntimeException {
         super("Insufficient stock for medication: " + medicationId);
     }
 }
+

@@ -10,3 +10,4 @@ public record FamilyMemberAssignedToPatientIntegrationEvent(
         int version
 ) {
 }
+

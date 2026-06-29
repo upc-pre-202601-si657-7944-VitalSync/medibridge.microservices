@@ -29,3 +29,4 @@ public class PatientProfileContextFacade {
                 .map(patientProfile -> patientProfile.getFullName());
     }
 }
+

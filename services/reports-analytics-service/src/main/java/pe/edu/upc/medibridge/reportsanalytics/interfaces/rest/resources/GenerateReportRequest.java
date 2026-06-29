@@ -10,3 +10,4 @@ public record GenerateReportRequest(
         LocalDate startDate,
         LocalDate endDate) {
 }
+

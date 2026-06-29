@@ -13,3 +13,4 @@ public class AppointmentsServiceApplication {
         SpringApplication.run(AppointmentsServiceApplication.class, args);
     }
 }
+

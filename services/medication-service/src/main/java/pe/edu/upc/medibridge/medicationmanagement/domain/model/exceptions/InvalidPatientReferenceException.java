@@ -5,3 +5,4 @@ public class InvalidPatientReferenceException extends RuntimeException {
         super("Patient reference not found: " + patientId);
     }
 }
+

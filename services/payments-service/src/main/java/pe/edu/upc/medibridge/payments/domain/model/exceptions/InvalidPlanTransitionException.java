@@ -5,3 +5,4 @@ public class InvalidPlanTransitionException extends RuntimeException {
         super(message);
     }
 }
+

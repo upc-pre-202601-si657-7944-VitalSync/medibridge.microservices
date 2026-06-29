@@ -9,3 +9,4 @@ public record RecordDoseAdministrationRequest(
         LocalDateTime administeredAt,
         String notes) {
 }
+

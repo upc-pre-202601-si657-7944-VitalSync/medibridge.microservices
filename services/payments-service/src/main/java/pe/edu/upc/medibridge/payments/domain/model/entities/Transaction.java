@@ -44,3 +44,4 @@ public class Transaction extends AuditableModel {
         this.processedAt = LocalDateTime.now();
     }
 }
+

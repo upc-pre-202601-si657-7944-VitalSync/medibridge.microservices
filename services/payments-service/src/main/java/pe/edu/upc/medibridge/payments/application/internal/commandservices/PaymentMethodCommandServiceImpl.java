@@ -21,3 +21,4 @@ public class PaymentMethodCommandServiceImpl implements PaymentMethodCommandServ
         return Optional.of(paymentMethodRepository.save(new PaymentMethod(command)));
     }
 }
+

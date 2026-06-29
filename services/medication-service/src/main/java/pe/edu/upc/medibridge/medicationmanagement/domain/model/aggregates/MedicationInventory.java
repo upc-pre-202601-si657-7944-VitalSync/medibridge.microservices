@@ -28,3 +28,4 @@ public class MedicationInventory extends AuditableAbstractAggregateRoot<Medicati
         this.medications.add(medication);
     }
 }
+

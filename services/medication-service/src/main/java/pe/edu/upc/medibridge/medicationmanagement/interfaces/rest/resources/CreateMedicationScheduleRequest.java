@@ -14,3 +14,4 @@ public record CreateMedicationScheduleRequest(
         LocalDate startDate,
         LocalDate endDate) {
 }
+

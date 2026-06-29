@@ -8,3 +8,4 @@ import java.util.List;
 public interface InvoiceQueryService {
     List<Invoice> handle(GetInvoiceHistoryQuery query);
 }
+

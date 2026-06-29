@@ -34,3 +34,4 @@ public abstract class AuditableAbstractAggregateRoot<T> {
         return id;
     }
 }
+

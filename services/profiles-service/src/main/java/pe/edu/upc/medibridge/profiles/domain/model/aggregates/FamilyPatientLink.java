@@ -33,3 +33,4 @@ public class FamilyPatientLink extends AuditableAbstractAggregateRoot<FamilyPati
         this.active = true;
     }
 }
+

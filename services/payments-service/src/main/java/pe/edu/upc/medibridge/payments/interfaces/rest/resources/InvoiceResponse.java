@@ -14,3 +14,4 @@ public record InvoiceResponse(
         InvoiceStatus status,
         LocalDateTime issuedAt) {
 }
+

@@ -8,3 +8,4 @@ import pe.edu.upc.medibridge.profiles.domain.model.aggregates.DoctorProfile;
 public interface DoctorProfileRepository extends JpaRepository<DoctorProfile, Long> {
     boolean existsByUserId(Long userId);
 }
+

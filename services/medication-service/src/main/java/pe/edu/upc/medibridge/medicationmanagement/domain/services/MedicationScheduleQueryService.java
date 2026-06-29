@@ -8,3 +8,4 @@ import java.util.List;
 public interface MedicationScheduleQueryService {
     List<MedicationSchedule> handle(GetActiveMedicationSchedulesQuery query);
 }
+

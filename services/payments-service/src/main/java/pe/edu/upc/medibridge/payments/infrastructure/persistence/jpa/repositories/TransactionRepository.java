@@ -7,3 +7,4 @@ import pe.edu.upc.medibridge.payments.domain.model.entities.Transaction;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Integer> {
 }
+

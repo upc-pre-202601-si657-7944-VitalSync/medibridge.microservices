@@ -20,3 +20,4 @@ public record ClinicalAlertTriggeredEvent(
         this(alertId, patientId, observationId, severity, message, Instant.now(), 1);
     }
 }
+

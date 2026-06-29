@@ -19,3 +19,4 @@ public record PatientHealthObservationRecordedEvent(
         this(observationId, patientId, recordedByDoctorProfileId, recordedAt, Instant.now(), 1);
     }
 }
+

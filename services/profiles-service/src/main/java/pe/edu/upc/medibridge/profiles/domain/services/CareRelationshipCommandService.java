@@ -11,3 +11,4 @@ public interface CareRelationshipCommandService {
     Optional<DoctorPatientAssignment> handle(AssignDoctorToPatientCommand command);
     Optional<FamilyPatientLink> handle(LinkFamilyMemberToPatientCommand command);
 }
+

@@ -64,3 +64,4 @@ public class Plan extends AuditableModel {
         this.active = true;
     }
 }
+

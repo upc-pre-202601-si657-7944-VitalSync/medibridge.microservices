@@ -26,3 +26,4 @@ public class PatientDeactivatedEventHandler {
         LOGGER.info("Patient deactivation received by appointments: patientId={}", event.patientId());
     }
 }
+

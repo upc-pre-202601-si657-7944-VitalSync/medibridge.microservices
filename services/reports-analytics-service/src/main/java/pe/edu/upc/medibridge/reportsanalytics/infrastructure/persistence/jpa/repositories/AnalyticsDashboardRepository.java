@@ -10,3 +10,4 @@ import java.util.Optional;
 public interface AnalyticsDashboardRepository extends JpaRepository<AnalyticsDashboard, Integer> {
     Optional<AnalyticsDashboard> findByPatientId(Long patientId);
 }
+

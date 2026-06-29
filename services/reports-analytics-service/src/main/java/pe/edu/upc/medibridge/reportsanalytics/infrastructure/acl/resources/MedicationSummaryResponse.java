@@ -6,3 +6,4 @@ public record MedicationSummaryResponse(
         int lowStockMedications,
         long doseAdministrations) {
 }
+

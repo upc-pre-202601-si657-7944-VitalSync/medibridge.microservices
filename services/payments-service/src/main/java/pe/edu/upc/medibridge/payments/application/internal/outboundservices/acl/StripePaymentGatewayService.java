@@ -6,3 +6,4 @@ public interface StripePaymentGatewayService {
     String createCustomer(Long userId);
     String createPaymentIntent(Long userId, Plan plan);
 }
+

@@ -5,3 +5,4 @@ public class MedicationNotFoundException extends RuntimeException {
         super("Medication not found with id: " + medicationId);
     }
 }
+

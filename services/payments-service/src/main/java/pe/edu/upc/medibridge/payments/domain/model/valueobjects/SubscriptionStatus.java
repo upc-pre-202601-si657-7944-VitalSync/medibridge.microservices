@@ -6,3 +6,4 @@ public enum SubscriptionStatus {
     PAST_DUE,
     TRIALING
 }
+

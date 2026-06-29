@@ -7,3 +7,4 @@ public record PatientProfileCreatedEvent(Long patientId, String fullName, Instan
         this(patientId, fullName, Instant.now(), 1);
     }
 }
+

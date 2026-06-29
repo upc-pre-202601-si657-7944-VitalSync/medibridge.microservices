@@ -13,3 +13,4 @@ public class ReportGenerationException extends RuntimeException {
         super(message, cause);
     }
 }
+

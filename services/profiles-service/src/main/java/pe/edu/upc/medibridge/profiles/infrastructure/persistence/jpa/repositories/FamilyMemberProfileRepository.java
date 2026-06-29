@@ -8,3 +8,4 @@ import pe.edu.upc.medibridge.profiles.domain.model.aggregates.FamilyMemberProfil
 public interface FamilyMemberProfileRepository extends JpaRepository<FamilyMemberProfile, Long> {
     boolean existsByUserId(Long userId);
 }
+

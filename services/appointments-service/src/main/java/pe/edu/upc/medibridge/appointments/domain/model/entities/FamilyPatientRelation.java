@@ -31,3 +31,4 @@ public class FamilyPatientRelation extends AuditableAbstractAggregateRoot<Family
         this.active = true;
     }
 }
+

@@ -16,3 +16,4 @@ public class VitalSignRecordedEventHandler {
         LOGGER.info("Health observation recorded event received by reports analytics: {}", event);
     }
 }
+

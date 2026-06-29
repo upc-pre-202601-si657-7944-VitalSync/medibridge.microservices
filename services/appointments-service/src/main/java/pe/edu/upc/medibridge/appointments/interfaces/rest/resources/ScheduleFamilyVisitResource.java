@@ -9,3 +9,4 @@ public record ScheduleFamilyVisitResource(
         Integer durationInMinutes,
         String reason) {
 }
+

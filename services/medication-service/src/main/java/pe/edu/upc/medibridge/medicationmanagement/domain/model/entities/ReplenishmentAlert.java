@@ -36,3 +36,4 @@ public class ReplenishmentAlert extends AuditableModel {
         this.resolved = true;
     }
 }
+

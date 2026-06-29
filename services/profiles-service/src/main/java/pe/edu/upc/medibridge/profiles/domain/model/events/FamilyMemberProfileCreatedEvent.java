@@ -7,3 +7,4 @@ public record FamilyMemberProfileCreatedEvent(Long familyMemberProfileId, Long u
         this(familyMemberProfileId, userId, Instant.now(), 1);
     }
 }
+

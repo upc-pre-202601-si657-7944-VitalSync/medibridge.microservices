@@ -6,3 +6,4 @@ import pe.edu.upc.medibridge.payments.domain.model.valueobjects.PlanType;
 
 public record CreateSubscriptionRequest(Long userId, CommercialLine commercialLine, PlanType planType, BillingCycle billingCycle) {
 }
+

@@ -17,3 +17,4 @@ public interface ClinicalReportRepository extends JpaRepository<ClinicalReport, 
     @EntityGraph(attributePaths = "sections")
     List<ClinicalReport> findByPatientIdOrderByGeneratedAtDesc(Long patientId);
 }
+

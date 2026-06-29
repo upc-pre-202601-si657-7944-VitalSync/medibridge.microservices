@@ -17,3 +17,4 @@ public class MedicalAppointmentResourceFromEntityAssembler {
                 appointment.getReason());
     }
 }
+

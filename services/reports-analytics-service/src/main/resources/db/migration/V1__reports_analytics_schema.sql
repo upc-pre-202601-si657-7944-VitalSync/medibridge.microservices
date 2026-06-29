@@ -1,4 +1,4 @@
-﻿CREATE TABLE analytics_dashboards (
+CREATE TABLE analytics_dashboards (
     id SERIAL PRIMARY KEY,
     patient_id BIGINT NOT NULL UNIQUE,
     created_at TIMESTAMP NOT NULL,
@@ -57,3 +57,4 @@ CREATE TABLE report_sections (
 CREATE INDEX ix_clinical_reports_patient_generated_at ON clinical_reports(patient_id, generated_at DESC);
 CREATE INDEX ix_metric_snapshots_patient_metric ON metric_snapshots(patient_id, metric_type);
 CREATE INDEX ix_trend_indicators_patient_metric ON trend_indicators(patient_id, metric_type);
+

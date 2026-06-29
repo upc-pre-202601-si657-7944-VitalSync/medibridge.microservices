@@ -12,3 +12,4 @@ public class DoctorPatientAssignmentResourceFromEntityAssembler {
                 entity.isActive());
     }
 }
+

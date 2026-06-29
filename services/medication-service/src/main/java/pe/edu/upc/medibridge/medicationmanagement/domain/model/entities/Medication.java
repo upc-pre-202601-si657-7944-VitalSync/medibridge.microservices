@@ -91,3 +91,4 @@ public class Medication extends AuditableModel {
         return expirationDate.isBefore(LocalDate.now());
     }
 }
+

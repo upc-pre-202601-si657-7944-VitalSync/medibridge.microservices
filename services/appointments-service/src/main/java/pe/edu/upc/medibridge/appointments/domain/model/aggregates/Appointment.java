@@ -81,3 +81,4 @@ public class Appointment extends AuditableAbstractAggregateRoot<Appointment> {
         return hasActiveSchedule() && timeSlot.overlaps(candidate);
     }
 }
+

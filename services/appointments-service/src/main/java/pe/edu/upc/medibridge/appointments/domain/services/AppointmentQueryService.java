@@ -13,3 +13,4 @@ public interface AppointmentQueryService {
     List<Appointment> handle(GetAppointmentsByPatientQuery query);
     List<Appointment> handle(GetAppointmentsByPatientInPeriodQuery query);
 }
+

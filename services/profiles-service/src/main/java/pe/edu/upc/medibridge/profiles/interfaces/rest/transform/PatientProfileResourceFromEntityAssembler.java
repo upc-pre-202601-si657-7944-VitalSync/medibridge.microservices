@@ -8,3 +8,4 @@ public class PatientProfileResourceFromEntityAssembler {
         return new PatientProfileResource(entity.getId(), entity.getFullName());
     }
 }
+

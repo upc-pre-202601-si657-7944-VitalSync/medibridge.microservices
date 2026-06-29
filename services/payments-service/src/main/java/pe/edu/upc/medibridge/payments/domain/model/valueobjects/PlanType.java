@@ -6,3 +6,4 @@ public enum PlanType {
     INSTITUTION_BASIC,
     INSTITUTION_PREMIUM
 }
+

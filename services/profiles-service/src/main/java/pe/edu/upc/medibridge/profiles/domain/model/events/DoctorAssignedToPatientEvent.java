@@ -13,3 +13,4 @@ public record DoctorAssignedToPatientEvent(
         this(assignmentId, doctorProfileId, patientId, Instant.now(), 1);
     }
 }
+

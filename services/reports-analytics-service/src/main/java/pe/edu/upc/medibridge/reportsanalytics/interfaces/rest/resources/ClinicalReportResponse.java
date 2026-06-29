@@ -17,3 +17,4 @@ public record ClinicalReportResponse(
         String pdfPath,
         List<ReportSectionResponse> sections) {
 }
+

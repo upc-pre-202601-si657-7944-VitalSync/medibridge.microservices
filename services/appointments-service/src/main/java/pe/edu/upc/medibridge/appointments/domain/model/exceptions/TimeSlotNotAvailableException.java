@@ -9,3 +9,4 @@ public class TimeSlotNotAvailableException extends RuntimeException {
         super("Time slot is not available for patient: " + patientId);
     }
 }
+

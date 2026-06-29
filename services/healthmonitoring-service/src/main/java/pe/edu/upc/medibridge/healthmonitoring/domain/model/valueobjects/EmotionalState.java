@@ -8,3 +8,4 @@ public enum EmotionalState {
     CONFUSED,
     APATHETIC
 }
+

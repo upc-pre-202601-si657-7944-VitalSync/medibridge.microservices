@@ -7,5 +7,7 @@ public record SkipDoseCommand(
         Integer scheduleId,
         Long patientId,
         LocalDateTime skippedAt,
-        String reason) {
+        String reason,
+        Long requestedByUserId) {
 }
+

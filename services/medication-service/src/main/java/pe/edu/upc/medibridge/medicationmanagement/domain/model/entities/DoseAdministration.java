@@ -55,3 +55,4 @@ public class DoseAdministration extends AuditableModel {
         this.notes = command.reason();
     }
 }
+

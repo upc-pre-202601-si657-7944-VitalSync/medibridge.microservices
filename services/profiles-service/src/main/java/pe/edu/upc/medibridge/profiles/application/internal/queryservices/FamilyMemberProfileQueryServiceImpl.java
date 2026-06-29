@@ -22,3 +22,4 @@ public class FamilyMemberProfileQueryServiceImpl implements FamilyMemberProfileQ
         return familyMemberProfileRepository.findById(query.familyMemberProfileId());
     }
 }
+

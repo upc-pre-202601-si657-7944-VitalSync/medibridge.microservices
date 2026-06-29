@@ -20,3 +20,4 @@ CREATE TABLE doctor_patient_relations (
 
 CREATE INDEX idx_health_doctor_patient_relations_patient_id
     ON doctor_patient_relations(patient_id);
+

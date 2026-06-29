@@ -5,3 +5,4 @@ public enum ReportType {
     MEDICATION,
     FULL_CLINICAL
 }
+

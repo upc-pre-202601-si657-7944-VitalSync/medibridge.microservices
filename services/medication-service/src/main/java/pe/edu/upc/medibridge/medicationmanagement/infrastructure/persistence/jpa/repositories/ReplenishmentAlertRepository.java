@@ -10,3 +10,4 @@ import java.util.List;
 public interface ReplenishmentAlertRepository extends JpaRepository<ReplenishmentAlert, Integer> {
     List<ReplenishmentAlert> findByPatientIdAndResolvedFalse(Long patientId);
 }
+

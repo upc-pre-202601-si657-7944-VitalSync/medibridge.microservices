@@ -7,5 +7,7 @@ public record ScheduleFamilyVisitCommand(
         Long familyMemberProfileId,
         LocalDateTime startsAt,
         Integer durationInMinutes,
-        String reason) {
+        String reason,
+        Long requestedByUserId) {
 }
+

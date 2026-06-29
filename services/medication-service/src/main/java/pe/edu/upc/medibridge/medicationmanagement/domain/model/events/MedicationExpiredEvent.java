@@ -7,3 +7,4 @@ public record MedicationExpiredEvent(Integer medicationId, Long patientId, Insta
         this(medicationId, patientId, Instant.now(), 1);
     }
 }
+

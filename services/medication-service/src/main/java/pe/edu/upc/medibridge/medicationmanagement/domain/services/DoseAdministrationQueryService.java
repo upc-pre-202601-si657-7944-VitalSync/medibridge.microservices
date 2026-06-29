@@ -8,3 +8,4 @@ import java.util.List;
 public interface DoseAdministrationQueryService {
     List<DoseAdministration> handle(GetDoseAdministrationHistoryQuery query);
 }
+

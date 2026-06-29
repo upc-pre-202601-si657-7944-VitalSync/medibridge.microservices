@@ -9,3 +9,4 @@ public record ScheduleMedicalAppointmentResource(
         Integer durationInMinutes,
         String reason) {
 }
+

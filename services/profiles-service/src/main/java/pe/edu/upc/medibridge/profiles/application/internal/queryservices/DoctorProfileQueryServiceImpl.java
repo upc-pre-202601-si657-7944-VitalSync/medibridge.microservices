@@ -22,3 +22,4 @@ public class DoctorProfileQueryServiceImpl implements DoctorProfileQueryService 
         return doctorProfileRepository.findById(query.doctorProfileId());
     }
 }
+

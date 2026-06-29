@@ -4,3 +4,4 @@ public enum AlertStatus {
     ACTIVE,
     RESOLVED
 }
+

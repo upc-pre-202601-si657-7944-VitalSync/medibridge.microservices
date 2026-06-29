@@ -9,3 +9,4 @@ public interface FamilyPatientRelationRepository extends JpaRepository<FamilyPat
     boolean existsByLinkId(Long linkId);
     boolean existsByFamilyMemberProfileIdAndPatientIdAndActiveTrue(Long familyMemberProfileId, Long patientId);
 }
+

@@ -8,3 +8,4 @@ import java.util.Optional;
 public interface FamilyMemberProfileCommandService {
     Optional<FamilyMemberProfile> handle(CreateFamilyMemberProfileCommand command);
 }
+

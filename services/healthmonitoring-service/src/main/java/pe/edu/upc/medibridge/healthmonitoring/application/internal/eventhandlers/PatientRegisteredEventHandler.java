@@ -27,3 +27,4 @@ public class PatientRegisteredEventHandler {
                 event.patientId(), event.fullName());
     }
 }
+

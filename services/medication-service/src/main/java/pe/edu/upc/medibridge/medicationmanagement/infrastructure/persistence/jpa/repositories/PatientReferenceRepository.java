@@ -11,3 +11,4 @@ public interface PatientReferenceRepository extends JpaRepository<PatientReferen
     boolean existsByPatientIdAndActiveTrue(Long patientId);
     Optional<PatientReference> findByPatientId(Long patientId);
 }
+

@@ -15,3 +15,4 @@ public class InvoiceResponseFromEntityAssembler {
                 entity.getIssuedAt());
     }
 }
+

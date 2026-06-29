@@ -38,3 +38,4 @@ public class AnalyticsDashboard extends AuditableAbstractAggregateRoot<Analytics
         this.trendIndicators.add(trendIndicator);
     }
 }
+

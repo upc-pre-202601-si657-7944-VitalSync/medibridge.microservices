@@ -9,3 +9,4 @@ public class ProfileRelationshipNotAllowedException extends RuntimeException {
         super(message);
     }
 }
+

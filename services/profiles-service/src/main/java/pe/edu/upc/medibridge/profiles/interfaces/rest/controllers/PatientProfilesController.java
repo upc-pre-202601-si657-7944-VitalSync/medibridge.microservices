@@ -61,3 +61,4 @@ public class PatientProfilesController {
         return ResponseEntity.ok(patientProfileResource);
     }
 }
+

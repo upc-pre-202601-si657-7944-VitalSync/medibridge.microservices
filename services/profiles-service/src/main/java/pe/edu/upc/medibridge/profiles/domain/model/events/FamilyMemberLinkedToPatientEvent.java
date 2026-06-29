@@ -13,3 +13,4 @@ public record FamilyMemberLinkedToPatientEvent(
         this(linkId, familyMemberProfileId, patientId, Instant.now(), 1);
     }
 }
+

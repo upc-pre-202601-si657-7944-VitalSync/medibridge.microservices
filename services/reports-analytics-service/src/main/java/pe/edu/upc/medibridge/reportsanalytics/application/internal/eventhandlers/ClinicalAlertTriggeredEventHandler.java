@@ -16,3 +16,4 @@ public class ClinicalAlertTriggeredEventHandler {
         LOGGER.info("Clinical alert event received by reports analytics: {}", event);
     }
 }
+

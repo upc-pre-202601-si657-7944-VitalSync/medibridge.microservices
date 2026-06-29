@@ -10,3 +10,4 @@ import java.util.List;
 public interface PaymentMethodRepository extends JpaRepository<PaymentMethod, Integer> {
     List<PaymentMethod> findByUserIdAndActiveTrue(Long userId);
 }
+

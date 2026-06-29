@@ -10,3 +10,4 @@ public interface AppointmentCommandService {
     Optional<Appointment> handle(ScheduleFamilyVisitCommand command);
     Optional<Appointment> handle(ScheduleMedicalAppointmentCommand command);
 }
+

@@ -6,3 +6,4 @@ public interface ExternalPatientProfileService {
     boolean patientExists(Long patientId);
     Optional<String> getPatientFullName(Long patientId);
 }
+

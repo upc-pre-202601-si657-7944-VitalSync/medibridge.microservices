@@ -14,5 +14,7 @@ public record RegisterMedicationCommand(
         AdministrationRoute administrationRoute,
         Integer stockQuantity,
         Integer lowStockThreshold,
-        LocalDate expirationDate) {
+        LocalDate expirationDate,
+        Long requestedByUserId) {
 }
+

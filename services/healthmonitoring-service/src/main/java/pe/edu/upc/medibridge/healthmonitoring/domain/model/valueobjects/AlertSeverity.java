@@ -4,3 +4,4 @@ public enum AlertSeverity {
     MEDIUM,
     HIGH
 }
+

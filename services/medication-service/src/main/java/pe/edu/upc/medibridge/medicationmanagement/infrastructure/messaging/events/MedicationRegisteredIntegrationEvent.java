@@ -9,3 +9,4 @@ public record MedicationRegisteredIntegrationEvent(
         Instant occurredAt,
         int version) {
 }
+

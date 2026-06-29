@@ -31,3 +31,4 @@ public class PatientRegisteredEventHandler {
         LOGGER.info("Patient reference synchronized for medication service: patientId={}", event.patientId());
     }
 }
+

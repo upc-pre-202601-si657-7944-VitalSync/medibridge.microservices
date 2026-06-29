@@ -7,3 +7,4 @@ public record MedicationRegisteredEvent(Integer medicationId, Long patientId, In
         this(medicationId, patientId, Instant.now(), 1);
     }
 }
+

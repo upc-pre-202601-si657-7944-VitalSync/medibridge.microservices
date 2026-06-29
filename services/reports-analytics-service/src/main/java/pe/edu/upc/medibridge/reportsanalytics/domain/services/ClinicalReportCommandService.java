@@ -10,3 +10,4 @@ public interface ClinicalReportCommandService {
     Optional<ClinicalReport> handle(GenerateClinicalReportCommand command);
     Optional<ClinicalReport> handle(GeneratePdfReportCommand command);
 }
+

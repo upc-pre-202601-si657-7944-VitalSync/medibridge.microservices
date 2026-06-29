@@ -13,3 +13,4 @@ public record SubscriptionResponse(
         LocalDate startedAt,
         LocalDate currentPeriodEnd) {
 }
+

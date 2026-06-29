@@ -38,3 +38,4 @@ public class PaymentMethod extends AuditableModel {
         this.active = true;
     }
 }
+

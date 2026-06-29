@@ -32,3 +32,4 @@ public class DoctorProfile extends AuditableAbstractAggregateRoot<DoctorProfile>
         this.fullName = command.fullName();
     }
 }
+

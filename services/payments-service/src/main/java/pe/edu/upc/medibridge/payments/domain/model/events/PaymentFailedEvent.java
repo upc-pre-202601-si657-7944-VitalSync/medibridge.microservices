@@ -7,3 +7,4 @@ public record PaymentFailedEvent(Long userId, String stripePaymentIntentId, Inst
         this(userId, stripePaymentIntentId, Instant.now(), 1);
     }
 }
+

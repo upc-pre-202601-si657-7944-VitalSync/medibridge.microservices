@@ -11,3 +11,4 @@ public interface MedicationRepository extends JpaRepository<Medication, Integer>
     List<Medication> findByPatientId(Long patientId);
     List<Medication> findByPatientIdAndActiveTrue(Long patientId);
 }
+

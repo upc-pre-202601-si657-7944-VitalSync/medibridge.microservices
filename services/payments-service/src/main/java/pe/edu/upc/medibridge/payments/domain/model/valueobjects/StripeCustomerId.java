@@ -7,3 +7,4 @@ public record StripeCustomerId(String value) {
         }
     }
 }
+

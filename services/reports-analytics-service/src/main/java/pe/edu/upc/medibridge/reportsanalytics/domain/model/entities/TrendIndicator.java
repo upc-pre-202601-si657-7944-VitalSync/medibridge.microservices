@@ -37,3 +37,4 @@ public class TrendIndicator extends AuditableModel {
         this.explanation = explanation;
     }
 }
+

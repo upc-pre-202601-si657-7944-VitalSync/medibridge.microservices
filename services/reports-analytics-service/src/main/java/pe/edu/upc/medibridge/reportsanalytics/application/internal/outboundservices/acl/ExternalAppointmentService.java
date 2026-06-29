@@ -5,3 +5,4 @@ import java.time.LocalDate;
 public interface ExternalAppointmentService {
     String getAppointmentSummary(Long patientId, LocalDate startDate, LocalDate endDate);
 }
+

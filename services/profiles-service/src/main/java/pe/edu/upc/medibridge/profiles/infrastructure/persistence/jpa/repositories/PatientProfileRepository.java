@@ -7,3 +7,4 @@ import pe.edu.upc.medibridge.profiles.domain.model.aggregates.PatientProfile;
 @Repository
 public interface PatientProfileRepository extends JpaRepository<PatientProfile, Long> {
 }
+

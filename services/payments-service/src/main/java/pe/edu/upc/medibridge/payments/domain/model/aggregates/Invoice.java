@@ -42,3 +42,4 @@ public class Invoice extends AuditableAbstractAggregateRoot<Invoice> {
         this.issuedAt = LocalDateTime.now();
     }
 }
+

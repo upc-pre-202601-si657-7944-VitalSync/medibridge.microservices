@@ -8,3 +8,4 @@ public record ErrorResponseResource(
         String details
 ) {
 }
+

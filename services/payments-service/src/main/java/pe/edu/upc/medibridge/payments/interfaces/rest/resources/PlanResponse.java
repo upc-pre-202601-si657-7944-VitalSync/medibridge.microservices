@@ -16,3 +16,4 @@ public record PlanResponse(
         String displayName,
         Integer maxPatients) {
 }
+

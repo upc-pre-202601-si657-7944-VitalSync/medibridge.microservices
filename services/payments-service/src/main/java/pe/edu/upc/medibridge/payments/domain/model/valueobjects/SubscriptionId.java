@@ -7,3 +7,4 @@ public record SubscriptionId(Long value) {
         }
     }
 }
+

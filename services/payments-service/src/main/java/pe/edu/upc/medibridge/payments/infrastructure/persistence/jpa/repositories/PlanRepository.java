@@ -21,3 +21,4 @@ public interface PlanRepository extends JpaRepository<Plan, Integer> {
             PlanType planType,
             BillingCycle billingCycle);
 }
+

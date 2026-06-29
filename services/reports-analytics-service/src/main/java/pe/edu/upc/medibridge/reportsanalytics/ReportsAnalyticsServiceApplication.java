@@ -13,3 +13,4 @@ public class ReportsAnalyticsServiceApplication {
         SpringApplication.run(ReportsAnalyticsServiceApplication.class, args);
     }
 }
+

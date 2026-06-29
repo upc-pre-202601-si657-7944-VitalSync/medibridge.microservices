@@ -8,3 +8,4 @@ import java.util.List;
 public interface HealthObservationQueryService {
     List<PatientHealthObservation> handle(GetPatientHealthObservationsQuery query);
 }
+

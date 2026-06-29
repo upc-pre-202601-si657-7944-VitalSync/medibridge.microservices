@@ -32,3 +32,4 @@ public class FamilyMemberProfile extends AuditableAbstractAggregateRoot<FamilyMe
         this.fullName = command.fullName();
     }
 }
+

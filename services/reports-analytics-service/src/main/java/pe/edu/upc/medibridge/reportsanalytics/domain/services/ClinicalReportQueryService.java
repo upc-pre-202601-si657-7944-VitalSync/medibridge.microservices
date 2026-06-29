@@ -11,3 +11,4 @@ public interface ClinicalReportQueryService {
     Optional<ClinicalReport> handle(GetReportByIdQuery query);
     List<ClinicalReport> handle(GetReportsByPatientQuery query);
 }
+

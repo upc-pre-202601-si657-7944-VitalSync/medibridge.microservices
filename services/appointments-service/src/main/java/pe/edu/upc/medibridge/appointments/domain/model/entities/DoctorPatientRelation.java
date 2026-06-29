@@ -34,3 +34,4 @@ public class DoctorPatientRelation extends AuditableAbstractAggregateRoot<Doctor
         this.active = true;
     }
 }
+

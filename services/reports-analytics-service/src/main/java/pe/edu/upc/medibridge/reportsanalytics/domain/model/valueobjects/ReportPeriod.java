@@ -12,3 +12,4 @@ public record ReportPeriod(LocalDate startDate, LocalDate endDate) {
         }
     }
 }
+

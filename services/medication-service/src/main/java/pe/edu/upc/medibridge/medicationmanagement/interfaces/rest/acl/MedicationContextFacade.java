@@ -38,3 +38,4 @@ public class MedicationContextFacade {
                 .collect(Collectors.joining(" "));
     }
 }
+

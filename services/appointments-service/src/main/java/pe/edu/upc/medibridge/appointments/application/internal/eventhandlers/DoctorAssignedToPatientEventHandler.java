@@ -30,3 +30,4 @@ public class DoctorAssignedToPatientEventHandler {
                 event.doctorProfileId(), event.patientId());
     }
 }
+

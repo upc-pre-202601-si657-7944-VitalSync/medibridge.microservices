@@ -213,3 +213,4 @@ public class ITextPdfReportGenerator {
         return text.isBlank() ? "Not registered" : text;
     }
 }
+

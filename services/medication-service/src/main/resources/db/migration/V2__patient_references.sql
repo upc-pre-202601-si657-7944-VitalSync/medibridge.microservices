@@ -8,3 +8,4 @@ CREATE TABLE patient_references (
 );
 
 CREATE INDEX idx_patient_references_patient_active ON patient_references(patient_id, active);
+

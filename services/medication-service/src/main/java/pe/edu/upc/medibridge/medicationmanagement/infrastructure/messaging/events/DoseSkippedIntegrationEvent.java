@@ -10,3 +10,4 @@ public record DoseSkippedIntegrationEvent(
         Instant occurredAt,
         int version) {
 }
+

@@ -7,3 +7,4 @@ public record StockCriticallyLowEvent(Integer medicationId, Long patientId, Inte
         this(medicationId, patientId, currentStock, Instant.now(), 1);
     }
 }
+

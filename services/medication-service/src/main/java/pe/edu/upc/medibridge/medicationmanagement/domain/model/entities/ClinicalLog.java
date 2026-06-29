@@ -27,3 +27,4 @@ public class ClinicalLog extends AuditableModel {
         this.description = description;
     }
 }
+

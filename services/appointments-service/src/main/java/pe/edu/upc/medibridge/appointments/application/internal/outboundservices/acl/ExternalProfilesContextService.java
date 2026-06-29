@@ -5,3 +5,4 @@ public interface ExternalProfilesContextService {
     boolean familyMemberCanAccessPatient(Long familyMemberProfileId, Long patientId);
     boolean doctorCanAttendPatient(Long doctorProfileId, Long patientId);
 }
+

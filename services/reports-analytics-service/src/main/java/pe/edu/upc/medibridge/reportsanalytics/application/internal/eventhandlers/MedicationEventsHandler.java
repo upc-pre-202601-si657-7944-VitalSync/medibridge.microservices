@@ -28,3 +28,4 @@ public class MedicationEventsHandler {
         LOGGER.info("Stock low event received by reports analytics: {}", event);
     }
 }
+

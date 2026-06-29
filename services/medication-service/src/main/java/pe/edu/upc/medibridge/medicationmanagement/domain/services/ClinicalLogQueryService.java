@@ -7,3 +7,4 @@ import java.util.List;
 public interface ClinicalLogQueryService {
     List<ClinicalLog> findByPatientId(Long patientId);
 }
+

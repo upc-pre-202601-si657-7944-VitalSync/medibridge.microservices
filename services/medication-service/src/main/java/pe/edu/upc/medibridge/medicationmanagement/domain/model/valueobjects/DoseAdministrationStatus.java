@@ -4,3 +4,4 @@ public enum DoseAdministrationStatus {
     ADMINISTERED,
     SKIPPED
 }
+

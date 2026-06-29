@@ -9,3 +9,4 @@ public class ProfileNotFoundException extends RuntimeException {
         super(profileName + " not found: " + profileId);
     }
 }
+

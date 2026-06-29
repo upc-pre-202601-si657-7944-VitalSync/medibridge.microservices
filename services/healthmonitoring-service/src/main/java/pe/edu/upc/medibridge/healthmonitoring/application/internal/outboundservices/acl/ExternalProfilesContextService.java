@@ -4,3 +4,4 @@ public interface ExternalProfilesContextService {
     boolean patientExists(Long patientId);
     boolean doctorCanAttendPatient(Long doctorProfileId, Long patientId);
 }
+

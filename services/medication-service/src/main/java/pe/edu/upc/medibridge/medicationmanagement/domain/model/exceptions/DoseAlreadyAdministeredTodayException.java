@@ -5,3 +5,4 @@ public class DoseAlreadyAdministeredTodayException extends RuntimeException {
         super("Dose already administered today for schedule: " + scheduleId);
     }
 }
+

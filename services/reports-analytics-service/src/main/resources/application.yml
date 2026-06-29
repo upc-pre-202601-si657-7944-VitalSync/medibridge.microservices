@@ -1,4 +1,4 @@
-﻿server:
+server:
   port: ${PORT:${SERVER_PORT:8087}}
 
 spring:
@@ -38,6 +38,10 @@ spring:
           jwk-set-uri: ${IAM_JWK_SET_URI:http://localhost:8081/api/v1/jwks/.well-known/jwks.json}
 
 services:
+  iam:
+    url: ${IAM_SERVICE_URL:http://localhost:8081}
+  payments:
+    url: ${PAYMENTS_SERVICE_URL:http://localhost:8083}
   profiles:
     url: ${PROFILES_SERVICE_URL:http://localhost:8082}
   appointments:
@@ -46,9 +50,6 @@ services:
     url: ${HEALTHMONITORING_SERVICE_URL:http://localhost:8085}
   medication:
     url: ${MEDICATION_SERVICE_URL:http://localhost:8086}
-  internal:
-    header-name: ${INTERNAL_SERVICE_HEADER:X-Internal-Token}
-    token: ${INTERNAL_SERVICE_TOKEN:local-internal-token}
 
 reports:
   pdf:
@@ -63,3 +64,4 @@ management:
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+

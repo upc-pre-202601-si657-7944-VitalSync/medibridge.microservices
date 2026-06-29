@@ -7,3 +7,4 @@ public record DoseAdministeredEvent(Integer medicationId, Integer scheduleId, Lo
         this(medicationId, scheduleId, patientId, Instant.now(), 1);
     }
 }
+

@@ -8,3 +8,4 @@ public record PatientRegisteredIntegrationEvent(
         Instant occurredAt,
         int version) {
 }
+

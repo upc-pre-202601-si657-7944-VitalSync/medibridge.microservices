@@ -11,3 +11,4 @@ public interface MedicationScheduleRepository extends JpaRepository<MedicationSc
     List<MedicationSchedule> findByPatientIdAndActiveTrue(Long patientId);
     List<MedicationSchedule> findByMedicationIdAndActiveTrue(Integer medicationId);
 }
+

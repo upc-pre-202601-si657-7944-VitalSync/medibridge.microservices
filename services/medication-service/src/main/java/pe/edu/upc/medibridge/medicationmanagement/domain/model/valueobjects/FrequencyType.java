@@ -6,3 +6,4 @@ public enum FrequencyType {
     WEEKLY,
     AS_NEEDED
 }
+

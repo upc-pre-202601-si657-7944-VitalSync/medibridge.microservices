@@ -14,3 +14,4 @@ CREATE TABLE appointments (
 
 CREATE INDEX idx_appointments_patient_starts_at ON appointments(patient_id, starts_at);
 CREATE INDEX idx_appointments_patient_status_time ON appointments(patient_id, status, starts_at, ends_at);
+

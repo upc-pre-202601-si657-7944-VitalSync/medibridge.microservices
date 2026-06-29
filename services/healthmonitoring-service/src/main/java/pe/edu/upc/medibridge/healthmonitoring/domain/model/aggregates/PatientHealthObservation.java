@@ -77,3 +77,4 @@ public class PatientHealthObservation extends AuditableAbstractAggregateRoot<Pat
         this.recordedAt = command.recordedAt();
     }
 }
+

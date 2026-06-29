@@ -14,3 +14,4 @@ public record ClinicalAlertResource(
         String message,
         LocalDateTime triggeredAt) {
 }
+

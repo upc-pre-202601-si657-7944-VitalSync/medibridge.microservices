@@ -9,3 +9,4 @@ public record SkipDoseRequest(
         LocalDateTime skippedAt,
         String reason) {
 }
+

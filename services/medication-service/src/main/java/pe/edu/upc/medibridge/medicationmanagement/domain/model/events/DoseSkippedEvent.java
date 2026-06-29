@@ -7,3 +7,4 @@ public record DoseSkippedEvent(Integer medicationId, Integer scheduleId, Long pa
         this(medicationId, scheduleId, patientId, Instant.now(), 1);
     }
 }
+

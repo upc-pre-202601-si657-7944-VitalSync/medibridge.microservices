@@ -13,3 +13,4 @@ public class PaymentMethodResponseFromEntityAssembler {
                 entity.getStripePaymentMethodId());
     }
 }
+

@@ -7,3 +7,4 @@ public record GetAppointmentsByPatientInPeriodQuery(
         LocalDate startDate,
         LocalDate endDate) {
 }
+

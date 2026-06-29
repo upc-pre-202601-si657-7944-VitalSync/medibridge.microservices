@@ -9,3 +9,4 @@ public record DoseAdministeredIntegrationEvent(
         Instant occurredAt,
         int version) {
 }
+

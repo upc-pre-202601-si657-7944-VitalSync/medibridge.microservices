@@ -4,3 +4,4 @@ public enum AppointmentType {
     MEDICAL,
     FAMILY_VISIT
 }
+

@@ -1,3 +1,4 @@
+CREATE DATABASE medibridge_iam;
 CREATE DATABASE medibridge_profiles;
 CREATE DATABASE medibridge_payments;
 CREATE DATABASE medibridge_appointments;

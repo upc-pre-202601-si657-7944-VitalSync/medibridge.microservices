@@ -13,3 +13,4 @@ public interface MedicationInventoryQueryService {
     List<Medication> handle(GetMedicationsByPatientQuery query);
     List<Medication> handle(GetLowStockMedicationsQuery query);
 }
+

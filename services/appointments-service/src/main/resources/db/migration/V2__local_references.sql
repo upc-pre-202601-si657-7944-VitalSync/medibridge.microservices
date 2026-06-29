@@ -31,3 +31,4 @@ CREATE TABLE family_patient_relations (
 
 CREATE INDEX idx_doctor_patient_relations_patient_id ON doctor_patient_relations(patient_id);
 CREATE INDEX idx_family_patient_relations_patient_id ON family_patient_relations(patient_id);
+

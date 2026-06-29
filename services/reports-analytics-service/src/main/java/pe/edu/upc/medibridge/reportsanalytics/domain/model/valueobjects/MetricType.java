@@ -6,3 +6,4 @@ public enum MetricType {
     APPOINTMENT_COMPLETION,
     CLINICAL_ALERTS
 }
+

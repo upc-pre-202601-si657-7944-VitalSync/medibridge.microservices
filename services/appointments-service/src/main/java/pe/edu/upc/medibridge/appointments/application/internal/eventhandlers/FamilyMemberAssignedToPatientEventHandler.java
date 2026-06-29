@@ -30,3 +30,4 @@ public class FamilyMemberAssignedToPatientEventHandler {
                 event.familyMemberProfileId(), event.patientId());
     }
 }
+

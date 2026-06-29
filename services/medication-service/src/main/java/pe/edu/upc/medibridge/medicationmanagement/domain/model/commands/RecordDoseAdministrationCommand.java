@@ -7,5 +7,7 @@ public record RecordDoseAdministrationCommand(
         Integer scheduleId,
         Long patientId,
         LocalDateTime administeredAt,
-        String notes) {
+        String notes,
+        Long requestedByUserId) {
 }
+

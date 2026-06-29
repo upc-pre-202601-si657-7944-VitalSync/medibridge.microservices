@@ -21,3 +21,4 @@ public class InvoiceQueryServiceImpl implements InvoiceQueryService {
         return invoiceRepository.findByUserIdOrderByIssuedAtDesc(query.userId());
     }
 }
+

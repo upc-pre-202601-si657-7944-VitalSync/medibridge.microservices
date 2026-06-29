@@ -61,3 +61,4 @@ public class ClinicalAlert extends AuditableAbstractAggregateRoot<ClinicalAlert>
         this.triggeredAt = triggeredAt;
     }
 }
+

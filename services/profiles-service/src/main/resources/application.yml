@@ -40,9 +40,8 @@ spring:
 services:
   iam:
     url: ${IAM_SERVICE_URL:http://localhost:8081}
-  internal:
-    header-name: ${INTERNAL_SERVICE_HEADER:X-Internal-Token}
-    token: ${INTERNAL_SERVICE_TOKEN:local-internal-token}
+  payments:
+    url: ${PAYMENTS_SERVICE_URL:http://localhost:8083}
 
 management:
   endpoints:
@@ -53,3 +52,4 @@ management:
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+

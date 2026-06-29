@@ -22,3 +22,4 @@ public class PatientProfileQueryServiceImpl implements PatientProfileQueryServic
         return patientProfileRepository.findById(query.patientId());
     }
 }
+

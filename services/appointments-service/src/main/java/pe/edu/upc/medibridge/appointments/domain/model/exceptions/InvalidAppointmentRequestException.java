@@ -9,3 +9,4 @@ public class InvalidAppointmentRequestException extends RuntimeException {
         super(message);
     }
 }
+

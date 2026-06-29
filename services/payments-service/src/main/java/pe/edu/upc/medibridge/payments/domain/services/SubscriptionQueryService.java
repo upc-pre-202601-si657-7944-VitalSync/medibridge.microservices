@@ -10,3 +10,4 @@ public interface SubscriptionQueryService {
     Optional<Subscription> handle(GetSubscriptionByUserQuery query);
     Optional<Subscription> handle(GetActiveSubscriptionQuery query);
 }
+

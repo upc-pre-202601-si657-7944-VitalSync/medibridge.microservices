@@ -119,3 +119,4 @@ public class RabbitMQConfiguration {
         return QueueBuilder.durable(name).withArgument("x-dead-letter-exchange", DLX).build();
     }
 }
+

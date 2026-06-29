@@ -32,3 +32,4 @@ public class ProfilesContextFacade implements ExternalProfilesContextService {
                 patientId);
     }
 }
+

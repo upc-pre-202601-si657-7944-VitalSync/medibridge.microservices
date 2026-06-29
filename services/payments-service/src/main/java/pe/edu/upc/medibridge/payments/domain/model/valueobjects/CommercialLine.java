@@ -4,3 +4,4 @@ public enum CommercialLine {
     FAMILY,
     INSTITUTION
 }
+

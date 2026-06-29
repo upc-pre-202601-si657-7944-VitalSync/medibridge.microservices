@@ -13,3 +13,4 @@ public record ExpirationDate(LocalDate value) {
         return value.isBefore(LocalDate.now());
     }
 }
+

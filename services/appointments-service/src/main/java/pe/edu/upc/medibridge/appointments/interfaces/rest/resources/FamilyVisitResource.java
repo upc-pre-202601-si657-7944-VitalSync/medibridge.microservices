@@ -12,3 +12,4 @@ public record FamilyVisitResource(
         LocalDateTime endsAt,
         String reason) {
 }
+

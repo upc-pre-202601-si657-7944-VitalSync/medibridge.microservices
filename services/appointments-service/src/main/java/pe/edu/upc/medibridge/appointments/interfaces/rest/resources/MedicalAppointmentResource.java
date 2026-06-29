@@ -12,3 +12,4 @@ public record MedicalAppointmentResource(
         LocalDateTime endsAt,
         String reason) {
 }
+

@@ -10,3 +10,4 @@ import java.util.Optional;
 public interface MedicationInventoryRepository extends JpaRepository<MedicationInventory, Integer> {
     Optional<MedicationInventory> findByPatientId(Long patientId);
 }
+

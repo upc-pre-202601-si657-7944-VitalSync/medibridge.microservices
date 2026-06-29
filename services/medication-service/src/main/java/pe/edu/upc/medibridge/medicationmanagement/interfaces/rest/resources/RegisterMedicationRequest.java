@@ -16,3 +16,4 @@ public record RegisterMedicationRequest(
         Integer lowStockThreshold,
         LocalDate expirationDate) {
 }
+

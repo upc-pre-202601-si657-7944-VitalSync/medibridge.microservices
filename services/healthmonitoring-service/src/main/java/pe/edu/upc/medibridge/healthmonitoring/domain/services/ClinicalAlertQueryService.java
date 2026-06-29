@@ -8,3 +8,4 @@ import java.util.List;
 public interface ClinicalAlertQueryService {
     List<ClinicalAlert> handle(GetActiveClinicalAlertsByPatientQuery query);
 }
+

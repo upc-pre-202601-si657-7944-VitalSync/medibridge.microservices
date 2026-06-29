@@ -23,3 +23,4 @@ public class DashboardMetricsResponseFromEntityAssembler {
         return new DashboardMetricsResponse(entity.getId(), entity.getPatientId(), metrics, trends);
     }
 }
+

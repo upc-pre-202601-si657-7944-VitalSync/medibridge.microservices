@@ -16,3 +16,4 @@ public record RecordPatientHealthObservationResource(
         String clinicalNotes,
         LocalDateTime recordedAt) {
 }
+

@@ -10,3 +10,4 @@ public interface MedicationInventoryCommandService {
     Optional<Medication> handle(RegisterMedicationCommand command);
     Optional<Medication> handle(UpdateMedicationStockCommand command);
 }
+

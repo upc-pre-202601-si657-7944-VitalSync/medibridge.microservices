@@ -14,3 +14,4 @@ public record StockLevel(Integer quantity, Integer lowStockThreshold) {
         return quantity <= lowStockThreshold;
     }
 }
+

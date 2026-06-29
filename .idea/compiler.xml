@@ -8,7 +8,6 @@
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.46/lombok-1.18.46.jar" />
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.46/lombok-1.18.46.jar" />
         </processorPath>
         <module name="microservices" />
       </profile>
@@ -19,29 +18,21 @@
         <module name="api-gateway" />
         <module name="api-tests" />
       </profile>
-      <profile name="Annotation profile for profiles-service" enabled="true">
+      <profile name="Annotation profile for communication-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.40/lombok-1.18.40.jar" />
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.40/lombok-1.18.40.jar" />
         </processorPath>
-        <module name="appointments-service" />
         <module name="iam-service" />
-        <module name="medication-service" />
-        <module name="profiles-service" />
-      </profile>
-      <profile name="Annotation profile for reports-analytics-service" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.40/lombok-1.18.40.jar" />
-        </processorPath>
         <module name="healthmonitoring-service" />
         <module name="reports-analytics-service" />
+        <module name="communication-service" />
+        <module name="appointments-service" />
+        <module name="medication-service" />
         <module name="payments-service" />
+        <module name="profiles-service" />
       </profile>
     </annotationProcessing>
   </component>
@@ -49,6 +40,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="api-gateway" options="-parameters" />
       <module name="appointments-service" options="-parameters" />
+      <module name="communication-service" options="-parameters" />
       <module name="healthmonitoring-service" options="-parameters" />
       <module name="iam-service" options="-parameters" />
       <module name="medication-service" options="-parameters" />

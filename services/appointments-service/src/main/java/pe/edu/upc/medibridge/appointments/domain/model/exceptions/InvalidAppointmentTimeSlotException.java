@@ -9,3 +9,4 @@ public class InvalidAppointmentTimeSlotException extends RuntimeException {
         super(message);
     }
 }
+

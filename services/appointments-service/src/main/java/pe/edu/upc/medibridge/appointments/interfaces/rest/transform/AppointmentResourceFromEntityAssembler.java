@@ -18,3 +18,4 @@ public class AppointmentResourceFromEntityAssembler {
                 appointment.getReason());
     }
 }
+

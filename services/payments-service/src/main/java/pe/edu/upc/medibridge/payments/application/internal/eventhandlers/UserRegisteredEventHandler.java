@@ -27,3 +27,4 @@ public class UserRegisteredEventHandler {
                 event.userId(), event.username());
     }
 }
+

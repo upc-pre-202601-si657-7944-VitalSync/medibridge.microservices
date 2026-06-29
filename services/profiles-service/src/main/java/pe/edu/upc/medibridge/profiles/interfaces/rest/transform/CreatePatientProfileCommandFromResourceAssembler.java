@@ -8,3 +8,4 @@ public class CreatePatientProfileCommandFromResourceAssembler {
         return new CreatePatientProfileCommand(resource.fullName());
     }
 }
+

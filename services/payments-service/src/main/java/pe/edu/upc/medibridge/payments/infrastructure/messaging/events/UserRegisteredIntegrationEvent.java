@@ -9,3 +9,4 @@ public record UserRegisteredIntegrationEvent(
         int version
 ) {
 }
+

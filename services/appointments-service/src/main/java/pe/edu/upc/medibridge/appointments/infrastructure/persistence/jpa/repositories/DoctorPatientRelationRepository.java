@@ -9,3 +9,4 @@ public interface DoctorPatientRelationRepository extends JpaRepository<DoctorPat
     boolean existsByAssignmentId(Long assignmentId);
     boolean existsByDoctorProfileIdAndPatientIdAndActiveTrue(Long doctorProfileId, Long patientId);
 }
+

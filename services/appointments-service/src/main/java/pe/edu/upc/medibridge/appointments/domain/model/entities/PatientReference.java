@@ -34,3 +34,4 @@ public class PatientReference extends AuditableAbstractAggregateRoot<PatientRefe
         this.active = false;
     }
 }
+

@@ -33,3 +33,4 @@ public class DoctorPatientAssignment extends AuditableAbstractAggregateRoot<Doct
         this.active = true;
     }
 }
+

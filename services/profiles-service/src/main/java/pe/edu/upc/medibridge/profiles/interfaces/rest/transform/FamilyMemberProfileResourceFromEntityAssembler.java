@@ -8,3 +8,4 @@ public class FamilyMemberProfileResourceFromEntityAssembler {
         return new FamilyMemberProfileResource(entity.getId(), entity.getUserId(), entity.getFullName());
     }
 }
+

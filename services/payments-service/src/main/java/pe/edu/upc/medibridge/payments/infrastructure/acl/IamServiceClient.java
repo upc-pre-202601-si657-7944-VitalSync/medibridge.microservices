@@ -10,3 +10,4 @@ public interface IamServiceClient {
     @GetMapping("/{userId}/exists")
     boolean userExists(@PathVariable Long userId);
 }
+

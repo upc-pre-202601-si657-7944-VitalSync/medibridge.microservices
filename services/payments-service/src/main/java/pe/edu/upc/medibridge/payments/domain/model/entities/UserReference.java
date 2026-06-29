@@ -30,3 +30,4 @@ public class UserReference extends AuditableModel {
         this.username = username;
     }
 }
+

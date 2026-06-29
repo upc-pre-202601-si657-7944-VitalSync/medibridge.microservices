@@ -11,3 +11,4 @@ public record StockLowIntegrationEvent(
         Instant occurredAt,
         int version) {
 }
+

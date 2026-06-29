@@ -16,3 +16,4 @@ public class DoseAdministeredEventHandler {
         LOGGER.info("Dose administered event received by reports analytics: {}", event);
     }
 }
+

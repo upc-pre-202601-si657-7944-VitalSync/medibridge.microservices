@@ -25,3 +25,4 @@ public record AppointmentScheduledEvent(
         this(appointmentId, patientId, doctorProfileId, familyMemberProfileId, appointmentType, startsAt, endsAt, Instant.now(), 1);
     }
 }
+

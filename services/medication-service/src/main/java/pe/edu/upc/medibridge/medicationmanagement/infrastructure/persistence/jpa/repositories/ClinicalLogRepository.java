@@ -10,3 +10,4 @@ import java.util.List;
 public interface ClinicalLogRepository extends JpaRepository<ClinicalLog, Integer> {
     List<ClinicalLog> findByPatientIdOrderByCreatedAtDesc(Long patientId);
 }
+

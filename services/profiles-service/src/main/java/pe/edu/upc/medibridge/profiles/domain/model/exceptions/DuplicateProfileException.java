@@ -9,3 +9,4 @@ public class DuplicateProfileException extends RuntimeException {
         super(message);
     }
 }
+

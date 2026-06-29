@@ -3,3 +3,4 @@ package pe.edu.upc.medibridge.medicationmanagement.application.outboundservices.
 public interface ExternalAlertNotificationService {
     void notifyLowStock(Integer medicationId, Long patientId, Integer currentStock);
 }
+

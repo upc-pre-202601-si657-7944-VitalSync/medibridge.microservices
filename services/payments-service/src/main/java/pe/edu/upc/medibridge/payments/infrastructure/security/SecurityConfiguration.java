@@ -23,6 +23,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/actuator/health",
+                                "/api/v1/internal/**",
                                 "/api/v1/stripe-webhooks",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
@@ -33,3 +34,4 @@ public class SecurityConfiguration {
                 .build();
     }
 }
+

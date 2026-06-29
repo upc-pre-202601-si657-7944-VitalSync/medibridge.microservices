@@ -18,3 +18,4 @@ public record MedicationResponse(
         LocalDate expirationDate,
         boolean active) {
 }
+

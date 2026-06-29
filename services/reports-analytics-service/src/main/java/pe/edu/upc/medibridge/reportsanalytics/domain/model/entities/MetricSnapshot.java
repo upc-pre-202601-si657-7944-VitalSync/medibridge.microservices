@@ -42,3 +42,4 @@ public class MetricSnapshot extends AuditableModel {
         this.capturedAt = capturedAt;
     }
 }
+

@@ -12,5 +12,7 @@ public record CreateMedicationScheduleCommand(
         Integer timesPerDay,
         LocalTime administrationTime,
         LocalDate startDate,
-        LocalDate endDate) {
+        LocalDate endDate,
+        Long requestedByUserId) {
 }
+

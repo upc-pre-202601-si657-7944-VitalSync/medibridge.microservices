@@ -9,3 +9,4 @@ public class InvalidProfileRequestException extends RuntimeException {
         super(message);
     }
 }
+

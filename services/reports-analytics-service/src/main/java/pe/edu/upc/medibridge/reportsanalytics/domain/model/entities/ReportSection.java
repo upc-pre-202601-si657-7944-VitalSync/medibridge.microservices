@@ -29,3 +29,4 @@ public class ReportSection extends AuditableModel {
         this.displayOrder = displayOrder;
     }
 }
+

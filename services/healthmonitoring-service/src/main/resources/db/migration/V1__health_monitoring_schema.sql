@@ -31,3 +31,4 @@ CREATE TABLE clinical_alerts (
 
 CREATE INDEX idx_clinical_alerts_patient_status_triggered_at
     ON clinical_alerts(patient_id, status, triggered_at DESC);
+

@@ -13,3 +13,4 @@ public record DoseAdministrationResponse(
         DoseAdministrationStatus status,
         String notes) {
 }
+

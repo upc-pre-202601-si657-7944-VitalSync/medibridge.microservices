@@ -10,3 +10,4 @@ public interface DoseAdministrationCommandService {
     Optional<DoseAdministration> handle(RecordDoseAdministrationCommand command);
     Optional<DoseAdministration> handle(SkipDoseCommand command);
 }
+

@@ -16,3 +16,4 @@ public record MedicationScheduleResponse(
         LocalDate endDate,
         boolean active) {
 }
+

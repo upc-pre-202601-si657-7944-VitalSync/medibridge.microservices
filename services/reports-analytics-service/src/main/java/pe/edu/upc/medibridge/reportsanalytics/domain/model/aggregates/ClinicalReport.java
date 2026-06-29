@@ -61,3 +61,4 @@ public class ClinicalReport extends AuditableAbstractAggregateRoot<ClinicalRepor
         this.pdfPath = pdfPath;
     }
 }
+

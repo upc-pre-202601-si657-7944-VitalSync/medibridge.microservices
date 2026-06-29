@@ -88,3 +88,4 @@ CREATE INDEX idx_medication_schedule_patient_active ON medication_schedule(patie
 CREATE INDEX idx_dose_administration_medication_occurred_at ON dose_administration(medication_id, occurred_at DESC);
 CREATE INDEX idx_clinical_log_patient_created_at ON clinical_log(patient_id, created_at DESC);
 CREATE INDEX idx_replenishment_alert_patient_resolved ON replenishment_alert(patient_id, resolved);
+

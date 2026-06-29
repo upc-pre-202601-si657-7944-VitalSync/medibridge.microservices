@@ -23,3 +23,4 @@ public class AuditableModel {
     @Column(nullable = false)
     private Date updatedAt;
 }
+

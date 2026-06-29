@@ -7,3 +7,4 @@ public record SubscriptionRenewedEvent(Long subscriptionId, Long userId, Instant
         this(subscriptionId, userId, Instant.now(), 1);
     }
 }
+

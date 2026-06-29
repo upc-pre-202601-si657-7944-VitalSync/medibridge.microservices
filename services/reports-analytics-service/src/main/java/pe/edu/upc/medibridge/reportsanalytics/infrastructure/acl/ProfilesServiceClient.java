@@ -12,4 +12,8 @@ public interface ProfilesServiceClient {
 
     @GetMapping("/api/v1/internal/profiles/patients/{patientId}")
     PatientProfileResponse getPatientProfileById(@PathVariable Long patientId);
+
+    @GetMapping("/api/v1/internal/profiles/users/{userId}/can-access/{patientId}")
+    boolean canUserAccessPatient(@PathVariable Long userId, @PathVariable Long patientId);
 }
+

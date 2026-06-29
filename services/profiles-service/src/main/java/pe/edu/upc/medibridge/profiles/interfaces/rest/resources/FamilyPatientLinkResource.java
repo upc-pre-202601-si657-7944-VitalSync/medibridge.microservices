@@ -6,3 +6,4 @@ public record FamilyPatientLinkResource(
         Long patientId,
         boolean active) {
 }
+

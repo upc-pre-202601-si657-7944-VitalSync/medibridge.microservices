@@ -13,3 +13,4 @@ public interface ProfilesServiceClient {
     @GetMapping("/api/v1/internal/profiles/patients/{patientId}")
     PatientProfileResponse getPatientProfileById(@PathVariable Long patientId);
 }
+

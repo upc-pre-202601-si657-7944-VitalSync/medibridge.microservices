@@ -8,3 +8,4 @@ import java.util.Optional;
 public interface DoctorProfileQueryService {
     Optional<DoctorProfile> handle(GetDoctorProfileByIdQuery query);
 }
+

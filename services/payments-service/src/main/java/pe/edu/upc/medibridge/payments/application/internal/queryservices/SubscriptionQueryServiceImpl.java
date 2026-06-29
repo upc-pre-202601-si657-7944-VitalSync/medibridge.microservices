@@ -28,3 +28,4 @@ public class SubscriptionQueryServiceImpl implements SubscriptionQueryService {
         return subscriptionRepository.findByUserIdAndStatus(query.userId(), SubscriptionStatus.ACTIVE);
     }
 }
+

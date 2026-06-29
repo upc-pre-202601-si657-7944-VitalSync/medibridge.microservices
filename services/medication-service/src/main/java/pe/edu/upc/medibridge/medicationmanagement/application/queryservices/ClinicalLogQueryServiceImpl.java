@@ -20,3 +20,4 @@ public class ClinicalLogQueryServiceImpl implements ClinicalLogQueryService {
         return clinicalLogRepository.findByPatientIdOrderByCreatedAtDesc(patientId);
     }
 }
+

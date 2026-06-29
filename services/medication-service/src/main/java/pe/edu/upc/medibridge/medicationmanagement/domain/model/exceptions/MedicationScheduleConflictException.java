@@ -5,3 +5,4 @@ public class MedicationScheduleConflictException extends RuntimeException {
         super("Medication schedule conflict for medication: " + medicationId);
     }
 }
+

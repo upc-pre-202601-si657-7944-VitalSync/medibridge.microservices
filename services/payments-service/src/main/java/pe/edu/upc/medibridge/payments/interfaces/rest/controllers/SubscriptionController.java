@@ -88,3 +88,4 @@ public class SubscriptionController {
                 .orElseGet(() -> ResponseEntity.badRequest().build());
     }
 }
+

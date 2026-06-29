@@ -39,3 +39,4 @@ public class TimeSlot {
         return Duration.between(startsAt, endsAt).toMinutes();
     }
 }
+

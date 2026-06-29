@@ -7,3 +7,4 @@ public record ClinicalReportGeneratedEvent(Integer reportId, Long patientId, Ins
         this(reportId, patientId, Instant.now(), 1);
     }
 }
+

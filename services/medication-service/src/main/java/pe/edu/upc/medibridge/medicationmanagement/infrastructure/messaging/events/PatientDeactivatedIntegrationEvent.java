@@ -7,3 +7,4 @@ public record PatientDeactivatedIntegrationEvent(
         Instant occurredAt,
         int version) {
 }
+

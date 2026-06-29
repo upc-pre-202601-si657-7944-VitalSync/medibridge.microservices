@@ -8,3 +8,4 @@ import java.util.Optional;
 public interface DoctorProfileCommandService {
     Optional<DoctorProfile> handle(CreateDoctorProfileCommand command);
 }
+

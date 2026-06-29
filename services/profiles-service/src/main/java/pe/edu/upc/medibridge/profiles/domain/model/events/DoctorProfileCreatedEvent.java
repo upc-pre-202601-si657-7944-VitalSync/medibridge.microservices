@@ -7,3 +7,4 @@ public record DoctorProfileCreatedEvent(Long doctorProfileId, Long userId, Insta
         this(doctorProfileId, userId, Instant.now(), 1);
     }
 }
+

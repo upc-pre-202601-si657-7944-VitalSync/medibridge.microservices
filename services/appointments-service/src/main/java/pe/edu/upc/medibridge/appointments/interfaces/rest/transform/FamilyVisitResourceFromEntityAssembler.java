@@ -17,3 +17,4 @@ public class FamilyVisitResourceFromEntityAssembler {
                 appointment.getReason());
     }
 }
+

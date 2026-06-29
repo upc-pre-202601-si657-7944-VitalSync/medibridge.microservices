@@ -28,3 +28,4 @@ public class PatientDeactivatedEventHandler {
         LOGGER.info("Patient reference deactivated for medication service: patientId={}", event.patientId());
     }
 }
+

@@ -12,3 +12,4 @@ public interface SubscriptionCommandService {
     Optional<Subscription> handle(CancelSubscriptionCommand command);
     Optional<Subscription> handle(RenewSubscriptionCommand command);
 }
+

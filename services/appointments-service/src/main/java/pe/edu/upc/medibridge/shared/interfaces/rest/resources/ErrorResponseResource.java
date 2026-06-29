@@ -11,3 +11,4 @@ public record ErrorResponseResource(
         String path,
         List<String> details) {
 }
+

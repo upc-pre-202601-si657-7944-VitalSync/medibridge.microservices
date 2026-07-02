@@ -6,7 +6,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @EnableJpaAuditing
-@EnableFeignClients
+@EnableFeignClients(basePackages = "pe.edu.upc.medibridge.medicationmanagement.infrastructure.acl")
 @SpringBootApplication(scanBasePackages = "pe.edu.upc.medibridge")
 public class MedicationServiceApplication {
     public static void main(String[] args) {

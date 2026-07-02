@@ -297,6 +297,41 @@ services:
       profiles-service:
         condition: service_started
 
+  api-gateway:
+    build:
+      context: ../services/api-gateway
+      dockerfile: Dockerfile
+    container_name: medibridge-api-gateway
+    environment:
+      IAM_SERVICE_URL: http://iam-service:8081
+      PROFILES_SERVICE_URL: http://profiles-service:8082
+      PAYMENTS_SERVICE_URL: http://payments-service:8083
+      APPOINTMENTS_SERVICE_URL: http://appointments-service:8084
+      HEALTHMONITORING_SERVICE_URL: http://healthmonitoring-service:8085
+      MEDICATION_SERVICE_URL: http://medication-service:8086
+      REPORTS_ANALYTICS_SERVICE_URL: http://reports-analytics-service:8087
+      COMMUNICATION_SERVICE_URL: http://communication-service:8088
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN:-local-internal-token}
+    ports:
+      - "8080:8080"
+    depends_on:
+      iam-service:
+        condition: service_started
+      profiles-service:
+        condition: service_started
+      payments-service:
+        condition: service_started
+      appointments-service:
+        condition: service_started
+      healthmonitoring-service:
+        condition: service_started
+      medication-service:
+        condition: service_started
+      reports-analytics-service:
+        condition: service_started
+      communication-service:
+        condition: service_started
+
 volumes:
   postgres_data:
   rabbitmq_data:

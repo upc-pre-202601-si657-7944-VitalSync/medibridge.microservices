@@ -36,7 +36,8 @@ import java.util.Objects;
         @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
         @ApiResponse(responseCode = "404", description = "Resource not found", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
         @ApiResponse(responseCode = "409", description = "Conflict", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
-        @ApiResponse(responseCode = "500", description = "Unexpected server error", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class)))
+        @ApiResponse(responseCode = "500", description = "Unexpected server error", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class))),
+        @ApiResponse(responseCode = "503", description = "Communication persistence is unavailable", content = @Content(schema = @Schema(implementation = ErrorResponseResource.class)))
 })
 public class ChatController {
     private final ChatMessageService chatMessageService;

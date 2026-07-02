@@ -1,58 +1,28 @@
 package pe.edu.upc.medibridge.communication.infrastructure.acl;
 
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientException;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 import java.util.Objects;
 
-@Component
-public class ProfilesServiceClient {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProfilesServiceClient.class);
+@FeignClient(name = "profiles-service", url = "${medibridge.services.profiles.base-url}", path = "/api/v1/internal/profiles")
+public interface ProfilesServiceClient {
 
-    private final RestClient restClient;
+    @GetMapping("/patients/{patientId}/care-team-members")
+    CareTeamMembersResource getCareTeamMembers(@PathVariable Long patientId);
 
-    public ProfilesServiceClient(
-            RestClient.Builder restClientBuilder,
-            @Value("${medibridge.services.profiles.base-url}") String profilesServiceBaseUrl) {
-        this.restClient = restClientBuilder
-                .baseUrl(profilesServiceBaseUrl)
-                .build();
-    }
-
-    @CircuitBreaker(name = "profilesService", fallbackMethod = "getCareTeamUserIdsFallback")
-    public List<Long> getCareTeamUserIds(Long patientId) {
-        try {
-            var resource = restClient.get()
-                    .uri("/api/v1/internal/profiles/patients/{patientId}/care-team-members", patientId)
-                    .retrieve()
-                    .body(CareTeamMembersResource.class);
-
-            if (resource == null || resource.careTeamUserIds() == null) {
-                return List.of();
-            }
-
-            return resource.careTeamUserIds()
-                    .stream()
-                    .filter(Objects::nonNull)
-                    .distinct()
-                    .toList();
-        } catch (RestClientException exception) {
-            LOGGER.warn("Could not resolve care team user ids for patientId={}. No notification recipients were created.",
-                    patientId,
-                    exception);
+    default List<Long> getCareTeamUserIds(Long patientId) {
+        var resource = getCareTeamMembers(patientId);
+        if (resource == null || resource.careTeamUserIds() == null) {
             return List.of();
         }
-    }
-
-    private List<Long> getCareTeamUserIdsFallback(Long patientId, Throwable exception) {
-        LOGGER.warn("Profiles circuit breaker fallback while resolving care team user ids for patientId={}", patientId, exception);
-        return List.of();
+        return resource.careTeamUserIds()
+                .stream()
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
     }
 }
 

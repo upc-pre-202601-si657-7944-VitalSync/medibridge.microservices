@@ -16,18 +16,19 @@ Ambos clientes consumen el mismo backend de microservicios, pero no deben tener 
 
 ## 2. Backend compartido
 
-El backend esta dividido en 8 servicios. Como aun no hay API Gateway, cada frontend consume los servicios por URL base.
+El backend esta dividido en microservicios, pero los frontends deben consumirlos a traves del API Gateway. En local, la URL publica del backend para web y movil es `http://localhost:8080`. Los puertos internos de cada microservicio quedan para comunicacion backend, health checks y depuracion puntual.
 
-| Servicio | Local URL | Uso principal |
+| Entrada | Local URL | Uso principal |
 |---|---|---|
-| IAM | `http://localhost:8081` | Login, registro, usuarios, roles |
-| Profiles | `http://localhost:8082` | Pacientes, doctores, familiares, care team |
-| Payments | `http://localhost:8083` | Suscripciones, planes, facturas |
-| Appointments | `http://localhost:8084` | Citas medicas y visitas familiares |
-| Health Monitoring | `http://localhost:8085` | Signos vitales, observaciones, alertas |
-| Medication | `http://localhost:8086` | Medicamentos, horarios, dosis, stock |
-| Reports Analytics | `http://localhost:8087` | Reportes, PDF, dashboard analitico |
-| Communication | `http://localhost:8088` | Chat, conectados, notificaciones |
+| API Gateway | `http://localhost:8080` | Entrada unica para login, perfiles, pagos, citas, salud, medicacion, reportes y comunicacion |
+| IAM interno | `http://localhost:8081` | Solo backend: login, usuarios, roles, JWKS |
+| Profiles interno | `http://localhost:8082` | Solo backend: pacientes, doctores, familiares, care team |
+| Payments interno | `http://localhost:8083` | Solo backend: suscripciones, planes, facturas |
+| Appointments interno | `http://localhost:8084` | Solo backend: citas medicas y visitas familiares |
+| Health Monitoring interno | `http://localhost:8085` | Solo backend: signos vitales, observaciones, alertas |
+| Medication interno | `http://localhost:8086` | Solo backend: medicamentos, horarios, dosis, stock |
+| Reports Analytics interno | `http://localhost:8087` | Solo backend: reportes, PDF, dashboard analitico |
+| Communication interno | `http://localhost:8088` | Solo backend: chat, conectados, notificaciones |
 
 ## 3. Variables de entorno
 
@@ -36,14 +37,7 @@ El backend esta dividido en 8 servicios. Como aun no hay API Gateway, cada front
 Archivo `.env` del frontend web:
 
 ```env
-VITE_IAM_API_URL=http://localhost:8081
-VITE_PROFILES_API_URL=http://localhost:8082
-VITE_PAYMENTS_API_URL=http://localhost:8083
-VITE_APPOINTMENTS_API_URL=http://localhost:8084
-VITE_HEALTH_API_URL=http://localhost:8085
-VITE_MEDICATION_API_URL=http://localhost:8086
-VITE_REPORTS_API_URL=http://localhost:8087
-VITE_COMMUNICATION_API_URL=http://localhost:8088
+VITE_API_BASE_URL=http://localhost:8080
 ```
 
 ### 3.2 App familiar con React Native
@@ -51,20 +45,14 @@ VITE_COMMUNICATION_API_URL=http://localhost:8088
 Si usas Expo, usa variables `EXPO_PUBLIC_*`:
 
 ```env
-EXPO_PUBLIC_IAM_API_URL=http://localhost:8081
-EXPO_PUBLIC_PROFILES_API_URL=http://localhost:8082
-EXPO_PUBLIC_PAYMENTS_API_URL=http://localhost:8083
-EXPO_PUBLIC_APPOINTMENTS_API_URL=http://localhost:8084
-EXPO_PUBLIC_HEALTH_API_URL=http://localhost:8085
-EXPO_PUBLIC_MEDICATION_API_URL=http://localhost:8086
-EXPO_PUBLIC_REPORTS_API_URL=http://localhost:8087
-EXPO_PUBLIC_COMMUNICATION_API_URL=http://localhost:8088
+EXPO_PUBLIC_API_BASE_URL=http://localhost:8080
 ```
 
 Importante para movil:
 
-- En emulador Android, `localhost` apunta al emulador, no a tu PC. Normalmente usa `http://10.0.2.2:8081`, `http://10.0.2.2:8082`, etc.
-- En dispositivo fisico, usa la IP local de tu PC, por ejemplo `http://192.168.1.20:8081`.
+- En emulador Android, `localhost` apunta al emulador, no a tu PC. Normalmente usa `http://10.0.2.2:8080`.
+- En dispositivo fisico, usa la IP local de tu PC, por ejemplo `http://192.168.1.20:8080`.
+- No envies `X-Internal-Token` desde los frontends. Ese header lo agrega el API Gateway cuando llama a los microservicios.
 
 ## 4. Autenticacion compartida
 
@@ -72,10 +60,10 @@ Ambos frontends usan IAM.
 
 | Accion | Metodo | Servicio | Endpoint |
 |---|---|---|---|
-| Registro | POST | IAM | `/api/v1/authentication/sign-up` |
-| Login | POST | IAM | `/api/v1/authentication/sign-in` |
-| Obtener usuario | GET | IAM | `/api/v1/users/{userId}` |
-| Listar roles | GET | IAM | `/api/v1/roles` |
+| Registro | POST | Gateway -> IAM | `/api/v1/authentication/sign-up` |
+| Login | POST | Gateway -> IAM | `/api/v1/authentication/sign-in` |
+| Obtener usuario | GET | Gateway -> IAM | `/api/v1/users/{userId}` |
+| Listar roles | GET | Gateway -> IAM | `/api/v1/roles` |
 
 Request login:
 
@@ -722,7 +710,7 @@ Formato comun:
 - Appointments y Medication son producto base, pero requieren pertenecer al care team.
 - Reports usa rango de fechas en `POST /api/v1/clinical-reports`.
 - En React Native, revisar bien URLs locales por emulador/dispositivo fisico.
-- Mientras no exista API Gateway, ambos clientes necesitan configurar multiples URLs base.
+- Ambos clientes deben usar el API Gateway como unica URL base publica.
 
 ## 13. Mejoras backend utiles para ambos frontends
 
@@ -733,4 +721,4 @@ Estas mejoras no bloquean iniciar, pero simplifican mucho el desarrollo:
 - `GET /api/v1/profiles/users/{userId}/patients` para listar pacientes accesibles.
 - Endpoint publico para `care-team-members`, sin usar `/internal`.
 - `GET /api/v1/payments/plans` para listar planes disponibles.
-- API Gateway para que web y movil consuman una sola URL base.
+- Mantener el API Gateway como entrada unica para web y movil.

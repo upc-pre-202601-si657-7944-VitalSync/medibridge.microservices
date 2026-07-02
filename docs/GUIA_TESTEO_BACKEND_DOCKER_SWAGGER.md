@@ -1,6 +1,6 @@
 # Guia de testeo backend con Docker y Swagger
 
-Esta guia sirve para levantar toda la infraestructura y los 8 microservicios en Docker, abrir Swagger por servicio y validar el flujo principal del backend.
+Esta guia sirve para levantar toda la infraestructura, los 8 microservicios y el API Gateway en Docker, abrir Swagger consolidado por el gateway y validar el flujo principal del backend.
 
 Notas importantes del estado actual:
 
@@ -8,6 +8,7 @@ Notas importantes del estado actual:
 - Si recreas `iam-service`, los tokens anteriores pueden quedar invalidos porque IAM genera un par RSA efimero cuando no estan configuradas `IAM_JWT_PRIVATE_KEY` y `IAM_JWT_PUBLIC_KEY`.
 - En Payments, `userId` siempre se refiere al id del usuario de IAM, no al id del perfil de Profiles.
 - En Reports Analytics, el rango `startDate`/`endDate` se usa actualmente en `POST /api/v1/clinical-reports`; no hay un endpoint publico separado solo para previsualizar resumen por rango. Internamente Reports llama a Health Monitoring, Medication y Appointments usando ese rango.
+- Los microservicios estan protegidos por `X-Internal-Token`. Para pruebas normales usa el API Gateway en `http://localhost:8080`; el gateway agrega ese header automaticamente.
 
 ## 1. Levantar contenedores
 
@@ -81,14 +82,33 @@ docker compose -f docker\docker-compose.yml up -d --build --force-recreate --rem
 
 ## 2. URLs de Swagger
 
-- IAM: http://localhost:8081/swagger-ui.html
-- Profiles: http://localhost:8082/swagger-ui.html
-- Payments: http://localhost:8083/swagger-ui.html
-- Appointments: http://localhost:8084/swagger-ui.html
-- Health Monitoring: http://localhost:8085/swagger-ui.html
-- Medication: http://localhost:8086/swagger-ui.html
-- Reports Analytics: http://localhost:8087/swagger-ui.html
-- Communication: http://localhost:8088/swagger-ui.html
+Swagger principal:
+
+- API Gateway: http://localhost:8080/swagger-ui.html
+
+En el selector superior de Swagger UI elige el servicio que quieres probar:
+
+- IAM Service
+- Profiles Service
+- Payments Service
+- Appointments Service
+- Health Monitoring Service
+- Medication Service
+- Reports Analytics Service
+- Communication Service
+
+OpenAPI proxied por gateway:
+
+- IAM: http://localhost:8080/docs/iam/v3/api-docs
+- Profiles: http://localhost:8080/docs/profiles/v3/api-docs
+- Payments: http://localhost:8080/docs/payments/v3/api-docs
+- Appointments: http://localhost:8080/docs/appointments/v3/api-docs
+- Health Monitoring: http://localhost:8080/docs/healthmonitoring/v3/api-docs
+- Medication: http://localhost:8080/docs/medication/v3/api-docs
+- Reports Analytics: http://localhost:8080/docs/reports-analytics/v3/api-docs
+- Communication: http://localhost:8080/docs/communication/v3/api-docs
+
+Swagger directo por microservicio queda solo para diagnostico. Si abres `http://localhost:8081/swagger-ui.html` a `http://localhost:8088/swagger-ui.html`, el servicio puede responder `403` porque falta `X-Internal-Token`.
 
 Infraestructura:
 
@@ -98,11 +118,12 @@ Infraestructura:
 
 ## 3. Autenticacion en Swagger
 
-1. Abre IAM Swagger.
-2. Ejecuta `POST /api/v1/authentication/sign-up`.
-3. Ejecuta `POST /api/v1/authentication/sign-in`.
-4. Copia el `token` de la respuesta.
-5. En los otros Swagger, usa `Authorize` con:
+1. Abre Swagger del gateway: http://localhost:8080/swagger-ui.html.
+2. En el selector elige `IAM Service`.
+3. Ejecuta `POST /api/v1/authentication/sign-up`.
+4. Ejecuta `POST /api/v1/authentication/sign-in`.
+5. Copia el `token` de la respuesta.
+6. En Swagger UI, usa `Authorize` con:
 
 ```text
 Bearer TU_TOKEN
@@ -132,7 +153,7 @@ Guarda los `id` devueltos por IAM. Los vas a necesitar como `doctorUserId` y `fa
 
 ## 4. Crear perfiles
 
-En Profiles Swagger, con el token del usuario correspondiente.
+En Swagger del gateway, selecciona `Profiles Service` y usa el token del usuario correspondiente.
 
 Crear paciente:
 
@@ -172,7 +193,7 @@ Guarda `familyMemberProfileId`.
 
 ## 5. Suscripciones
 
-En Payments Swagger, con token valido.
+En Swagger del gateway, selecciona `Payments Service` y usa un token valido.
 
 Importante: todos los `userId` de Payments son ids de IAM. No uses `doctorProfileId`, `familyMemberProfileId` ni `patientId` en estos campos.
 
@@ -257,7 +278,7 @@ Resultado esperado si el usuario tiene suscripcion:
 
 ## 6. Vincular care team
 
-En Profiles Swagger.
+En Swagger del gateway, selecciona `Profiles Service`.
 
 Asignar doctor a paciente usando token del doctor:
 
@@ -277,15 +298,15 @@ Resultado esperado:
 - Familiar sin plan: puede vincular hasta 1 paciente.
 - Familiar con `FAMILY_PREMIUM`: puede vincular hasta el `maxPatients` del plan.
 
-Validar endpoint interno:
+Validar endpoint interno por diagnostico:
 
 `GET /api/v1/internal/profiles/users/{userId}/can-access/{patientId}`
 
-Debe devolver `true` para doctor/familiar vinculados.
+Ese endpoint no esta publicado como ruta publica del gateway. Para probarlo directamente contra `profiles-service`, envia el header `X-Internal-Token: local-internal-token`; debe devolver `true` para doctor/familiar vinculados.
 
 ## 7. Producto base: citas
 
-En Appointments Swagger.
+En Swagger del gateway, selecciona `Appointments Service`.
 
 Crear visita familiar con token del familiar:
 
@@ -324,7 +345,7 @@ Validacion esperada: usuario fuera del care team debe recibir `403`.
 
 ## 8. Producto base: medicacion
 
-En Medication Swagger.
+En Swagger del gateway, selecciona `Medication Service`.
 
 Registrar medicacion:
 
@@ -383,7 +404,7 @@ Validacion esperada: producto base, pero solo care team autorizado.
 
 ## 9. Premium: monitoreo avanzado
 
-En Health Monitoring Swagger.
+En Swagger del gateway, selecciona `Health Monitoring Service`.
 
 Registrar observacion con token del doctor:
 
@@ -417,7 +438,7 @@ Resultado esperado:
 
 ## 10. Premium: reportes, PDF y dashboard
 
-En Reports Analytics Swagger.
+En Swagger del gateway, selecciona `Reports Analytics Service`.
 
 Generar reporte:
 
@@ -469,7 +490,7 @@ Resultado esperado:
 
 ## 11. Communication sin premium
 
-En Communication Swagger.
+En Swagger del gateway, selecciona `Communication Service`.
 
 Enviar mensaje usando token del usuario autenticado:
 
@@ -514,7 +535,7 @@ La forma mas simple de probarlos en local es detener temporalmente una dependenc
 docker compose -f docker\docker-compose.yml stop healthmonitoring-service
 ```
 
-3. En Reports Swagger ejecuta:
+3. En Swagger del gateway, selecciona `Reports Analytics Service` y ejecuta:
 
 `POST /api/v1/clinical-reports`
 
@@ -644,7 +665,8 @@ docker compose -f docker\docker-compose.yml ps
 
 Marca el flujo como validado cuando confirmes:
 
-- Todos los Swagger abren.
+- El Swagger consolidado abre en `http://localhost:8080/swagger-ui.html`.
+- Todos los documentos OpenAPI aparecen en el selector del gateway.
 - IAM permite sign-up y sign-in.
 - Los JWT funcionan en los otros servicios.
 - Profiles crea paciente, doctor y familiar.
@@ -656,5 +678,5 @@ Marca el flujo como validado cuando confirmes:
 - Health Monitoring premium bloquea sin plan y permite con plan.
 - Reports/PDF/Dashboard bloquean sin plan y permiten con plan.
 - Communication funciona sin premium y valida sender/participantes.
-- Endpoints internos no requieren JWT para comunicacion entre servicios.
+- Endpoints internos no requieren JWT para comunicacion entre servicios, pero si requieren `X-Internal-Token`.
 - Circuit breakers devuelven fallback o errores controlados cuando una dependencia esta detenida.

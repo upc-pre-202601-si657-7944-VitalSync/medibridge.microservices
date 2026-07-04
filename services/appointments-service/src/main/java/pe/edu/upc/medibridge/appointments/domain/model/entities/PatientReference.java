@@ -30,6 +30,11 @@ public class PatientReference extends AuditableAbstractAggregateRoot<PatientRefe
         this.active = true;
     }
 
+    public void reactivate(String fullName) {
+        this.fullName = fullName;
+        this.active = true;
+    }
+
     public void deactivate() {
         this.active = false;
     }

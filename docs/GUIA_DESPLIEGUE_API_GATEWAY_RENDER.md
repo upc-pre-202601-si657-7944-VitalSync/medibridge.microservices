@@ -228,6 +228,14 @@ medibridge-api-gateway
   -> Environment
 ```
 
+Regla obligatoria:
+
+```text
+No dejes ninguna variable *_SERVICE_URL creada y vacia.
+Si un microservicio aun no esta desplegado, elimina esa variable del gateway por ahora o pon una URL real temporal.
+Una variable vacia rompe el arranque con un error tipo RouteProperties.getUri() is null.
+```
+
 Agrega estas variables si vas a probar con los servicios ya desplegados como Web Services publicos:
 
 ```text
@@ -732,6 +740,42 @@ Si ya esta desplegado:
 2. Revisa que reports-analytics-service este Live.
 3. Revisa INTERNAL_SERVICE_TOKEN.
 4. Revisa que /v3/api-docs responda dentro del servicio.
+```
+
+### El gateway falla al arrancar con RouteProperties.getUri() is null
+
+Sintoma en logs:
+
+```text
+Cannot invoke "java.net.URI.getScheme()" because the return value of
+"org.springframework.cloud.gateway.server.mvc.config.RouteProperties.getUri()" is null
+```
+
+Causa probable:
+
+```text
+Alguna variable *_SERVICE_URL existe en Render pero esta vacia.
+```
+
+Solucion:
+
+```text
+1. Entra a api-gateway -> Environment.
+2. Revisa IAM_SERVICE_URL, PROFILES_SERVICE_URL, PAYMENTS_SERVICE_URL, APPOINTMENTS_SERVICE_URL, HEALTHMONITORING_SERVICE_URL, MEDICATION_SERVICE_URL y REPORTS_ANALYTICS_SERVICE_URL.
+3. Si alguna esta vacia, llenala con una URL real o eliminála.
+4. Guarda cambios y redeploy del gateway.
+```
+
+Ejemplo incorrecto:
+
+```text
+REPORTS_ANALYTICS_SERVICE_URL=
+```
+
+Ejemplo correcto si Reports todavia no esta desplegado:
+
+```text
+No crear REPORTS_ANALYTICS_SERVICE_URL por ahora.
 ```
 
 ## Fuentes oficiales

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import pe.edu.upc.medibridge.profiles.application.internal.outboundservices.acl.ExternalIamContextService;
 import pe.edu.upc.medibridge.profiles.domain.model.exceptions.InvalidProfileRequestException;
 import pe.edu.upc.medibridge.profiles.domain.model.queries.GetDoctorProfileByIdQuery;
+import pe.edu.upc.medibridge.profiles.domain.model.queries.GetDoctorProfileByUserIdQuery;
 import pe.edu.upc.medibridge.profiles.domain.services.DoctorProfileCommandService;
 import pe.edu.upc.medibridge.profiles.domain.services.DoctorProfileQueryService;
 import pe.edu.upc.medibridge.profiles.interfaces.rest.resources.CreateDoctorProfileResource;
@@ -69,6 +70,19 @@ public class DoctorProfilesController {
 
         var doctorProfileResource = DoctorProfileResourceFromEntityAssembler.toResourceFromEntity(doctorProfile.get());
         return new ResponseEntity<>(doctorProfileResource, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<DoctorProfileResource> getAuthenticatedDoctorProfile(@AuthenticationPrincipal Jwt jwt) {
+        var userId = resolveAuthenticatedUserId(jwt);
+        var doctorProfile = doctorProfileQueryService.handle(new GetDoctorProfileByUserIdQuery(userId));
+
+        if (doctorProfile.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        var doctorProfileResource = DoctorProfileResourceFromEntityAssembler.toResourceFromEntity(doctorProfile.get());
+        return ResponseEntity.ok(doctorProfileResource);
     }
 
     @GetMapping("/{doctorProfileId}")

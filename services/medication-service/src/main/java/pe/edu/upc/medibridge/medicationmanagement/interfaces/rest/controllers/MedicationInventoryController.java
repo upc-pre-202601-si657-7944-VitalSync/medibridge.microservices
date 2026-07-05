@@ -14,6 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import pe.edu.upc.medibridge.medicationmanagement.application.queryservices.AuthenticatedPatientAccessService;
+import pe.edu.upc.medibridge.medicationmanagement.domain.model.commands.UpdateMedicationCommand;
 import pe.edu.upc.medibridge.medicationmanagement.domain.model.commands.UpdateMedicationStockCommand;
 import pe.edu.upc.medibridge.medicationmanagement.domain.model.queries.GetLowStockMedicationsQuery;
 import pe.edu.upc.medibridge.medicationmanagement.domain.model.queries.GetMedicationByIdQuery;
@@ -23,6 +24,7 @@ import pe.edu.upc.medibridge.medicationmanagement.domain.services.MedicationInve
 import pe.edu.upc.medibridge.medicationmanagement.interfaces.rest.resources.LowStockAlertResponse;
 import pe.edu.upc.medibridge.medicationmanagement.interfaces.rest.resources.MedicationResponse;
 import pe.edu.upc.medibridge.medicationmanagement.interfaces.rest.resources.RegisterMedicationRequest;
+import pe.edu.upc.medibridge.medicationmanagement.interfaces.rest.resources.UpdateMedicationRequest;
 import pe.edu.upc.medibridge.medicationmanagement.interfaces.rest.resources.UpdateMedicationStockRequest;
 import pe.edu.upc.medibridge.medicationmanagement.interfaces.rest.transform.MedicationResponseFromEntityAssembler;
 import pe.edu.upc.medibridge.medicationmanagement.interfaces.rest.transform.RegisterMedicationCommandFromResourceAssembler;
@@ -100,6 +102,27 @@ public class MedicationInventoryController {
         var requestedByUserId = authenticatedPatientAccessService.resolveUserId(jwt);
         var medication = medicationInventoryCommandService.handle(
                 new UpdateMedicationStockCommand(medicationId, resource.stockQuantity(), requestedByUserId));
+        return medication
+                .map(value -> ResponseEntity.ok(MedicationResponseFromEntityAssembler.toResourceFromEntity(value)))
+                .orElseGet(() -> ResponseEntity.badRequest().build());
+    }
+
+    @PatchMapping("/{medicationId}")
+    public ResponseEntity<MedicationResponse> updateMedication(
+            @PathVariable Integer medicationId,
+            @RequestBody UpdateMedicationRequest resource,
+            @AuthenticationPrincipal Jwt jwt) {
+        var requestedByUserId = authenticatedPatientAccessService.resolveUserId(jwt);
+        var medication = medicationInventoryCommandService.handle(new UpdateMedicationCommand(
+                medicationId,
+                resource.name(),
+                resource.dosageAmount(),
+                resource.dosageUnit(),
+                resource.administrationRoute(),
+                resource.stockQuantity(),
+                resource.lowStockThreshold(),
+                resource.expirationDate(),
+                requestedByUserId));
         return medication
                 .map(value -> ResponseEntity.ok(MedicationResponseFromEntityAssembler.toResourceFromEntity(value)))
                 .orElseGet(() -> ResponseEntity.badRequest().build());

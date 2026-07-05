@@ -4,8 +4,12 @@ import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
 import com.stripe.model.PaymentIntent;
+import com.stripe.model.Subscription;
+import com.stripe.model.checkout.Session;
 import com.stripe.param.CustomerCreateParams;
 import com.stripe.param.PaymentIntentCreateParams;
+import com.stripe.param.SubscriptionListParams;
+import com.stripe.param.checkout.SessionCreateParams;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -59,12 +63,82 @@ public class StripePaymentGatewayAdapter implements StripePaymentGatewayService 
         }
     }
 
+    @Override
+    @CircuitBreaker(name = "stripeApi", fallbackMethod = "createCheckoutSessionFallback")
+    public String createCheckoutSession(Long userId, Plan plan, String successUrl, String cancelUrl) {
+        try {
+            var customerId = createCustomer(userId);
+            var interval = plan.getBillingCycle().name().equals("ANNUALLY")
+                    ? SessionCreateParams.LineItem.PriceData.Recurring.Interval.YEAR
+                    : SessionCreateParams.LineItem.PriceData.Recurring.Interval.MONTH;
+
+            var params = SessionCreateParams.builder()
+                    .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
+                    .setCustomer(customerId)
+                    .setSuccessUrl(successUrl)
+                    .setCancelUrl(cancelUrl)
+                    .addLineItem(
+                            SessionCreateParams.LineItem.builder()
+                                    .setQuantity(1L)
+                                    .setPriceData(
+                                            SessionCreateParams.LineItem.PriceData.builder()
+                                                    .setCurrency(plan.getCurrency().toLowerCase())
+                                                    .setUnitAmount(toMinorCurrencyUnit(plan.getPrice()))
+                                                    .setProductData(
+                                                            SessionCreateParams.LineItem.PriceData.ProductData.builder()
+                                                                    .setName(plan.getDisplayName())
+                                                                    .build())
+                                                    .setRecurring(
+                                                            SessionCreateParams.LineItem.PriceData.Recurring.builder()
+                                                                    .setInterval(interval)
+                                                                    .build())
+                                                    .build())
+                                    .build())
+                    .putMetadata("medibridge_user_id", String.valueOf(userId))
+                    .putMetadata("commercial_line", plan.getCommercialLine().name())
+                    .putMetadata("plan_type", plan.getPlanType().name())
+                    .putMetadata("billing_cycle", plan.getBillingCycle().name())
+                    .build();
+
+            var session = Session.create(params);
+            return session.getUrl();
+        } catch (StripeException exception) {
+            throw new PaymentProcessingException("Stripe checkout session creation failed: " + exception.getMessage());
+        }
+    }
+
+    @Override
+    @CircuitBreaker(name = "stripeApi", fallbackMethod = "cancelActiveSubscriptionsFallback")
+    public void cancelActiveSubscriptions(String stripeCustomerId) {
+        try {
+            var params = SubscriptionListParams.builder()
+                    .setCustomer(stripeCustomerId)
+                    .setStatus(SubscriptionListParams.Status.ALL)
+                    .build();
+            for (var subscription : Subscription.list(params).getData()) {
+                if ("active".equals(subscription.getStatus()) || "trialing".equals(subscription.getStatus())) {
+                    subscription.cancel();
+                }
+            }
+        } catch (StripeException exception) {
+            throw new PaymentProcessingException("Stripe subscription cancellation failed: " + exception.getMessage());
+        }
+    }
+
     private String createCustomerFallback(Long userId, Throwable exception) {
         throw new PaymentProcessingException("Stripe customer creation circuit breaker fallback: " + exception.getMessage());
     }
 
     private String createPaymentIntentFallback(Long userId, Plan plan, Throwable exception) {
         throw new PaymentProcessingException("Stripe payment intent circuit breaker fallback: " + exception.getMessage());
+    }
+
+    private String createCheckoutSessionFallback(Long userId, Plan plan, String successUrl, String cancelUrl, Throwable exception) {
+        throw new PaymentProcessingException("Stripe checkout session circuit breaker fallback: " + exception.getMessage());
+    }
+
+    private void cancelActiveSubscriptionsFallback(String stripeCustomerId, Throwable exception) {
+        throw new PaymentProcessingException("Stripe subscription cancellation circuit breaker fallback: " + exception.getMessage());
     }
 
     private Long toMinorCurrencyUnit(BigDecimal amount) {

@@ -5,5 +5,7 @@ import pe.edu.upc.medibridge.payments.domain.model.entities.Plan;
 public interface StripePaymentGatewayService {
     String createCustomer(Long userId);
     String createPaymentIntent(Long userId, Plan plan);
+    String createCheckoutSession(Long userId, Plan plan, String successUrl, String cancelUrl);
+    void cancelActiveSubscriptions(String stripeCustomerId);
 }
 

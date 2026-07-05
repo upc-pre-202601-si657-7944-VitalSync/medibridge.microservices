@@ -12,6 +12,7 @@ import java.util.List;
 public interface DoctorPatientAssignmentRepository extends JpaRepository<DoctorPatientAssignment, Long> {
     boolean existsByDoctorProfileIdAndPatientIdAndActiveTrue(Long doctorProfileId, Long patientId);
     List<DoctorPatientAssignment> findAllByPatientIdAndActiveTrue(Long patientId);
+    List<DoctorPatientAssignment> findAllByDoctorProfileIdAndActiveTrue(Long doctorProfileId);
 
     @Query("select count(distinct assignment.patientId) from DoctorPatientAssignment assignment where assignment.doctorProfileId = :doctorProfileId and assignment.active = true")
     long countActivePatientsByDoctorProfileId(@Param("doctorProfileId") Long doctorProfileId);

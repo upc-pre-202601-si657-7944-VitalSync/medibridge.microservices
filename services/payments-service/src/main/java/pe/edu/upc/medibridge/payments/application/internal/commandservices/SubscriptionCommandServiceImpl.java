@@ -6,6 +6,7 @@ import pe.edu.upc.medibridge.payments.application.internal.outboundservices.acl.
 import pe.edu.upc.medibridge.payments.application.internal.outboundservices.acl.StripePaymentGatewayService;
 import pe.edu.upc.medibridge.payments.domain.model.aggregates.Invoice;
 import pe.edu.upc.medibridge.payments.domain.model.aggregates.Subscription;
+import pe.edu.upc.medibridge.payments.domain.model.commands.ActivateCheckoutSubscriptionCommand;
 import pe.edu.upc.medibridge.payments.domain.model.commands.CancelSubscriptionCommand;
 import pe.edu.upc.medibridge.payments.domain.model.commands.CreateSubscriptionCommand;
 import pe.edu.upc.medibridge.payments.domain.model.commands.RenewSubscriptionCommand;
@@ -88,9 +89,50 @@ public class SubscriptionCommandServiceImpl implements SubscriptionCommandServic
     }
 
     @Override
+    public Optional<Subscription> handle(ActivateCheckoutSubscriptionCommand command) {
+        if (!iamExternalSubscriptionService.userExists(command.userId())) {
+            throw new PaymentProcessingException("User not found in IAM: " + command.userId());
+        }
+        var activeSubscription = subscriptionRepository.findByUserIdAndStatus(command.userId(), SubscriptionStatus.ACTIVE);
+        if (activeSubscription.isPresent()) {
+            return activeSubscription;
+        }
+
+        var plan = planRepository.findByCommercialLineAndPlanTypeAndBillingCycleAndActiveTrue(
+                        command.commercialLine(),
+                        command.planType(),
+                        command.billingCycle())
+                .orElseThrow(() -> new PaymentProcessingException("Plan not found"));
+        var now = LocalDate.now();
+        var periodEnd = command.billingCycle().name().equals("ANNUALLY") ? now.plusYears(1) : now.plusMonths(1);
+        var subscription = subscriptionRepository.save(new Subscription(
+                command.userId(),
+                plan,
+                command.stripeCustomerId(),
+                now,
+                periodEnd));
+
+        transactionRepository.save(new Transaction(
+                command.userId(),
+                plan.getPrice(),
+                plan.getCurrency(),
+                command.checkoutSessionId(),
+                "SUCCEEDED"));
+        invoiceRepository.save(new Invoice(command.userId(), subscription.getId(), plan.getPrice(), plan.getCurrency(), InvoiceStatus.PAID));
+        eventPublisher.publishEvent(new SubscriptionActivatedEvent(subscription.getId(), subscription.getUserId()));
+        integrationEventPublisher.publishSubscriptionActivated(subscription.getUserId(), subscription.getId());
+        return Optional.of(subscription);
+    }
+
+    @Override
     public Optional<Subscription> handle(CancelSubscriptionCommand command) {
         var subscription = subscriptionRepository.findById(command.subscriptionId())
                 .orElseThrow(() -> new SubscriptionNotFoundException(command.subscriptionId()));
+        if (subscription.getStripeCustomerId() != null
+                && !subscription.getStripeCustomerId().isBlank()
+                && !subscription.getStripeCustomerId().startsWith("free-local-user-")) {
+            stripePaymentGatewayService.cancelActiveSubscriptions(subscription.getStripeCustomerId());
+        }
         subscription.cancel();
         var saved = subscriptionRepository.save(subscription);
         eventPublisher.publishEvent(new SubscriptionCancelledEvent(saved.getId(), saved.getUserId()));

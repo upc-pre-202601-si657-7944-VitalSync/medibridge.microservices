@@ -7,10 +7,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import pe.edu.upc.medibridge.shared.interfaces.rest.resources.ErrorResponseResource;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pe.edu.upc.medibridge.payments.application.internal.outboundservices.acl.StripePaymentGatewayService;
 import pe.edu.upc.medibridge.payments.domain.model.commands.CancelSubscriptionCommand;
 import pe.edu.upc.medibridge.payments.domain.model.commands.RenewSubscriptionCommand;
 import pe.edu.upc.medibridge.payments.domain.model.queries.GetActiveSubscriptionQuery;
@@ -18,7 +20,10 @@ import pe.edu.upc.medibridge.payments.domain.model.queries.GetSubscriptionByUser
 import pe.edu.upc.medibridge.payments.domain.services.PaymentMethodCommandService;
 import pe.edu.upc.medibridge.payments.domain.services.SubscriptionCommandService;
 import pe.edu.upc.medibridge.payments.domain.services.SubscriptionQueryService;
+import pe.edu.upc.medibridge.payments.infrastructure.persistence.jpa.repositories.PlanRepository;
 import pe.edu.upc.medibridge.payments.interfaces.rest.resources.AddPaymentMethodRequest;
+import pe.edu.upc.medibridge.payments.interfaces.rest.resources.CheckoutSessionResponse;
+import pe.edu.upc.medibridge.payments.interfaces.rest.resources.CreateCheckoutSessionRequest;
 import pe.edu.upc.medibridge.payments.interfaces.rest.resources.CreateSubscriptionRequest;
 import pe.edu.upc.medibridge.payments.interfaces.rest.resources.PaymentMethodResponse;
 import pe.edu.upc.medibridge.payments.interfaces.rest.resources.SubscriptionResponse;
@@ -42,14 +47,23 @@ public class SubscriptionController {
     private final SubscriptionCommandService subscriptionCommandService;
     private final SubscriptionQueryService subscriptionQueryService;
     private final PaymentMethodCommandService paymentMethodCommandService;
+    private final StripePaymentGatewayService stripePaymentGatewayService;
+    private final PlanRepository planRepository;
+    private final String frontendAppUrl;
 
     public SubscriptionController(
             SubscriptionCommandService subscriptionCommandService,
             SubscriptionQueryService subscriptionQueryService,
-            PaymentMethodCommandService paymentMethodCommandService) {
+            PaymentMethodCommandService paymentMethodCommandService,
+            StripePaymentGatewayService stripePaymentGatewayService,
+            PlanRepository planRepository,
+            @Value("${frontend.app.url}") String frontendAppUrl) {
         this.subscriptionCommandService = subscriptionCommandService;
         this.subscriptionQueryService = subscriptionQueryService;
         this.paymentMethodCommandService = paymentMethodCommandService;
+        this.stripePaymentGatewayService = stripePaymentGatewayService;
+        this.planRepository = planRepository;
+        this.frontendAppUrl = frontendAppUrl;
     }
 
     @ApiResponse(responseCode = "201", description = "Created")
@@ -60,6 +74,25 @@ public class SubscriptionController {
         return subscription
                 .map(value -> new ResponseEntity<>(SubscriptionResponseFromEntityAssembler.toResourceFromEntity(value), HttpStatus.CREATED))
                 .orElseGet(() -> ResponseEntity.badRequest().build());
+    }
+
+    @PostMapping("/checkout")
+    public ResponseEntity<CheckoutSessionResponse> createCheckoutSession(@RequestBody CreateCheckoutSessionRequest resource) {
+        var plan = planRepository.findByCommercialLineAndPlanTypeAndBillingCycleAndActiveTrue(
+                        resource.commercialLine(),
+                        resource.planType(),
+                        resource.billingCycle())
+                .orElse(null);
+        if (plan == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        var checkoutUrl = stripePaymentGatewayService.createCheckoutSession(
+                resource.userId(),
+                plan,
+                frontendAppUrl + "/subscriptions?checkout=success",
+                frontendAppUrl + "/subscriptions?checkout=cancelled");
+        return ResponseEntity.ok(new CheckoutSessionResponse(checkoutUrl));
     }
 
     @PostMapping("/{subscriptionId}/cancel")

@@ -8,6 +8,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import pe.edu.upc.medibridge.medicationmanagement.domain.model.commands.RegisterMedicationCommand;
+import pe.edu.upc.medibridge.medicationmanagement.domain.model.commands.UpdateMedicationCommand;
 import pe.edu.upc.medibridge.medicationmanagement.domain.model.valueobjects.AdministrationRoute;
 import pe.edu.upc.medibridge.medicationmanagement.domain.model.valueobjects.DosageUnit;
 import pe.edu.upc.medibridge.shared.domain.model.entities.AuditableModel;
@@ -74,6 +75,38 @@ public class Medication extends AuditableModel {
             throw new IllegalArgumentException("Stock quantity cannot be negative");
         }
         this.stockQuantity = stockQuantity;
+    }
+
+    public void update(UpdateMedicationCommand command) {
+        if (command.name() == null || command.name().isBlank()) {
+            throw new IllegalArgumentException("Medication name is required");
+        }
+        if (command.dosageAmount() == null || command.dosageAmount().signum() <= 0) {
+            throw new IllegalArgumentException("Dosage amount must be positive");
+        }
+        if (command.dosageUnit() == null) {
+            throw new IllegalArgumentException("Dosage unit is required");
+        }
+        if (command.administrationRoute() == null) {
+            throw new IllegalArgumentException("Administration route is required");
+        }
+        if (command.stockQuantity() == null || command.stockQuantity() < 0) {
+            throw new IllegalArgumentException("Stock quantity cannot be negative");
+        }
+        if (command.lowStockThreshold() == null || command.lowStockThreshold() < 0) {
+            throw new IllegalArgumentException("Low stock threshold cannot be negative");
+        }
+        if (command.expirationDate() == null) {
+            throw new IllegalArgumentException("Expiration date is required");
+        }
+
+        this.name = command.name();
+        this.dosageAmount = command.dosageAmount();
+        this.dosageUnit = command.dosageUnit();
+        this.administrationRoute = command.administrationRoute();
+        this.stockQuantity = command.stockQuantity();
+        this.lowStockThreshold = command.lowStockThreshold();
+        this.expirationDate = command.expirationDate();
     }
 
     public void decreaseStock() {

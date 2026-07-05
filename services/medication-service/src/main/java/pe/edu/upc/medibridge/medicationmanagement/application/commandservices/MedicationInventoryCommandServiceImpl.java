@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import pe.edu.upc.medibridge.medicationmanagement.application.outboundservices.acl.ExternalPatientContextService;
 import pe.edu.upc.medibridge.medicationmanagement.application.queryservices.AuthenticatedPatientAccessService;
 import pe.edu.upc.medibridge.medicationmanagement.domain.model.commands.RegisterMedicationCommand;
+import pe.edu.upc.medibridge.medicationmanagement.domain.model.commands.UpdateMedicationCommand;
 import pe.edu.upc.medibridge.medicationmanagement.domain.model.commands.UpdateMedicationStockCommand;
 import pe.edu.upc.medibridge.medicationmanagement.domain.model.entities.Medication;
 import pe.edu.upc.medibridge.medicationmanagement.domain.model.events.MedicationExpiredEvent;
@@ -71,6 +72,26 @@ public class MedicationInventoryCommandServiceImpl implements MedicationInventor
                     updatedMedication.getPatientId(),
                     updatedMedication.getStockQuantity()));
             integrationEventPublisher.publishStockLow(updatedMedication);
+        }
+        return Optional.of(updatedMedication);
+    }
+
+    @Override
+    public Optional<Medication> handle(UpdateMedicationCommand command) {
+        var medication = medicationRepository.findById(command.medicationId())
+                .orElseThrow(() -> new MedicationNotFoundException(command.medicationId()));
+        authenticatedPatientAccessService.requireAccess(command.requestedByUserId(), medication.getPatientId());
+        medication.update(command);
+        var updatedMedication = medicationRepository.save(medication);
+        if (updatedMedication.isLowStock()) {
+            eventPublisher.publishEvent(new StockCriticallyLowEvent(
+                    updatedMedication.getId(),
+                    updatedMedication.getPatientId(),
+                    updatedMedication.getStockQuantity()));
+            integrationEventPublisher.publishStockLow(updatedMedication);
+        }
+        if (updatedMedication.isExpired()) {
+            eventPublisher.publishEvent(new MedicationExpiredEvent(updatedMedication.getId(), updatedMedication.getPatientId()));
         }
         return Optional.of(updatedMedication);
     }

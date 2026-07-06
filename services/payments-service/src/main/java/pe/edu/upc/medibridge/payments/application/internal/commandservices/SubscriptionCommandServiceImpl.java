@@ -93,16 +93,29 @@ public class SubscriptionCommandServiceImpl implements SubscriptionCommandServic
         if (!iamExternalSubscriptionService.userExists(command.userId())) {
             throw new PaymentProcessingException("User not found in IAM: " + command.userId());
         }
-        var activeSubscription = subscriptionRepository.findByUserIdAndStatus(command.userId(), SubscriptionStatus.ACTIVE);
-        if (activeSubscription.isPresent()) {
-            return activeSubscription;
-        }
-
         var plan = planRepository.findByCommercialLineAndPlanTypeAndBillingCycleAndActiveTrue(
                         command.commercialLine(),
                         command.planType(),
                         command.billingCycle())
                 .orElseThrow(() -> new PaymentProcessingException("Plan not found"));
+
+        var activeSubscription = subscriptionRepository.findByUserIdAndStatus(command.userId(), SubscriptionStatus.ACTIVE);
+        if (activeSubscription.isPresent()) {
+            var active = activeSubscription.get();
+            var activeUsesSamePlan = active.getPlan().getId().equals(plan.getId());
+            var activeIsLocal = isLocalSubscription(active.getStripeCustomerId());
+            var incomingIsLocal = isLocalSubscription(command.stripeCustomerId());
+            if (activeUsesSamePlan && (!activeIsLocal || incomingIsLocal)) {
+                return activeSubscription;
+            }
+            if (!activeIsLocal) {
+                stripePaymentGatewayService.cancelActiveSubscriptions(active.getStripeCustomerId());
+            }
+            active.cancel();
+            var cancelled = subscriptionRepository.save(active);
+            eventPublisher.publishEvent(new SubscriptionCancelledEvent(cancelled.getId(), cancelled.getUserId()));
+        }
+
         var now = LocalDate.now();
         var periodEnd = command.billingCycle().name().equals("ANNUALLY") ? now.plusYears(1) : now.plusMonths(1);
         var subscription = subscriptionRepository.save(new Subscription(
@@ -130,7 +143,7 @@ public class SubscriptionCommandServiceImpl implements SubscriptionCommandServic
                 .orElseThrow(() -> new SubscriptionNotFoundException(command.subscriptionId()));
         if (subscription.getStripeCustomerId() != null
                 && !subscription.getStripeCustomerId().isBlank()
-                && !subscription.getStripeCustomerId().startsWith("free-local-user-")) {
+                && !isLocalSubscription(subscription.getStripeCustomerId())) {
             stripePaymentGatewayService.cancelActiveSubscriptions(subscription.getStripeCustomerId());
         }
         subscription.cancel();
@@ -147,13 +160,17 @@ public class SubscriptionCommandServiceImpl implements SubscriptionCommandServic
         var newPeriodEnd = subscription.getCurrentPeriodEnd().plusMonths(1);
         subscription.renew(newPeriodEnd);
         var saved = subscriptionRepository.save(subscription);
-        if (plan.getPrice().signum() > 0) {
+        if (plan.getPrice().signum() > 0 && !isLocalSubscription(saved.getStripeCustomerId())) {
             var paymentIntentId = stripePaymentGatewayService.createPaymentIntent(subscription.getUserId(), plan);
             transactionRepository.save(new Transaction(saved.getUserId(), plan.getPrice(), plan.getCurrency(), paymentIntentId, "SUCCEEDED"));
         }
         invoiceRepository.save(new Invoice(saved.getUserId(), saved.getId(), plan.getPrice(), plan.getCurrency(), InvoiceStatus.PAID));
         eventPublisher.publishEvent(new SubscriptionRenewedEvent(saved.getId(), saved.getUserId()));
         return Optional.of(saved);
+    }
+
+    private boolean isLocalSubscription(String stripeCustomerId) {
+        return stripeCustomerId.startsWith("free-local-user-") || stripeCustomerId.startsWith("mock-local-user-");
     }
 }
 

@@ -13,16 +13,21 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pe.edu.upc.medibridge.payments.application.internal.outboundservices.acl.StripePaymentGatewayService;
+import pe.edu.upc.medibridge.payments.domain.model.commands.ActivateCheckoutSubscriptionCommand;
 import pe.edu.upc.medibridge.payments.domain.model.commands.CancelSubscriptionCommand;
 import pe.edu.upc.medibridge.payments.domain.model.commands.RenewSubscriptionCommand;
 import pe.edu.upc.medibridge.payments.domain.model.queries.GetActiveSubscriptionQuery;
 import pe.edu.upc.medibridge.payments.domain.model.queries.GetSubscriptionByUserQuery;
+import pe.edu.upc.medibridge.payments.domain.model.valueobjects.BillingCycle;
+import pe.edu.upc.medibridge.payments.domain.model.valueobjects.CommercialLine;
+import pe.edu.upc.medibridge.payments.domain.model.valueobjects.PlanType;
 import pe.edu.upc.medibridge.payments.domain.services.PaymentMethodCommandService;
 import pe.edu.upc.medibridge.payments.domain.services.SubscriptionCommandService;
 import pe.edu.upc.medibridge.payments.domain.services.SubscriptionQueryService;
 import pe.edu.upc.medibridge.payments.infrastructure.persistence.jpa.repositories.PlanRepository;
 import pe.edu.upc.medibridge.payments.interfaces.rest.resources.AddPaymentMethodRequest;
 import pe.edu.upc.medibridge.payments.interfaces.rest.resources.CheckoutSessionResponse;
+import pe.edu.upc.medibridge.payments.interfaces.rest.resources.ConfirmCheckoutSessionRequest;
 import pe.edu.upc.medibridge.payments.interfaces.rest.resources.CreateCheckoutSessionRequest;
 import pe.edu.upc.medibridge.payments.interfaces.rest.resources.CreateSubscriptionRequest;
 import pe.edu.upc.medibridge.payments.interfaces.rest.resources.PaymentMethodResponse;
@@ -31,6 +36,8 @@ import pe.edu.upc.medibridge.payments.interfaces.rest.transform.AddPaymentMethod
 import pe.edu.upc.medibridge.payments.interfaces.rest.transform.CreateSubscriptionCommandFromResourceAssembler;
 import pe.edu.upc.medibridge.payments.interfaces.rest.transform.PaymentMethodResponseFromEntityAssembler;
 import pe.edu.upc.medibridge.payments.interfaces.rest.transform.SubscriptionResponseFromEntityAssembler;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping(value = "/api/v1/subscriptions", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -50,6 +57,7 @@ public class SubscriptionController {
     private final StripePaymentGatewayService stripePaymentGatewayService;
     private final PlanRepository planRepository;
     private final String frontendAppUrl;
+    private final boolean paymentMocksEnabled;
 
     public SubscriptionController(
             SubscriptionCommandService subscriptionCommandService,
@@ -57,13 +65,15 @@ public class SubscriptionController {
             PaymentMethodCommandService paymentMethodCommandService,
             StripePaymentGatewayService stripePaymentGatewayService,
             PlanRepository planRepository,
-            @Value("${frontend.app.url}") String frontendAppUrl) {
+            @Value("${frontend.app.url}") String frontendAppUrl,
+            @Value("${payments.mock.enabled:false}") boolean paymentMocksEnabled) {
         this.subscriptionCommandService = subscriptionCommandService;
         this.subscriptionQueryService = subscriptionQueryService;
         this.paymentMethodCommandService = paymentMethodCommandService;
         this.stripePaymentGatewayService = stripePaymentGatewayService;
         this.planRepository = planRepository;
         this.frontendAppUrl = frontendAppUrl;
+        this.paymentMocksEnabled = paymentMocksEnabled;
     }
 
     @ApiResponse(responseCode = "201", description = "Created")
@@ -90,9 +100,64 @@ public class SubscriptionController {
         var checkoutUrl = stripePaymentGatewayService.createCheckoutSession(
                 resource.userId(),
                 plan,
-                frontendAppUrl + "/subscriptions?checkout=success",
+                frontendAppUrl + "/subscriptions?checkout=success&session_id={CHECKOUT_SESSION_ID}",
                 frontendAppUrl + "/subscriptions?checkout=cancelled");
         return ResponseEntity.ok(new CheckoutSessionResponse(checkoutUrl));
+    }
+
+    @PostMapping("/checkout/confirm")
+    public ResponseEntity<SubscriptionResponse> confirmCheckoutSession(@RequestBody ConfirmCheckoutSessionRequest resource) {
+        if (resource.sessionId() == null || resource.sessionId().isBlank()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        var session = stripePaymentGatewayService.retrieveCheckoutSession(resource.sessionId());
+        if (!"complete".equals(session.status())) {
+            return ResponseEntity.badRequest().build();
+        }
+        if (!"paid".equals(session.paymentStatus()) && !"no_payment_required".equals(session.paymentStatus())) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        var metadata = session.metadata();
+        if (metadata == null
+                || !metadata.containsKey("medibridge_user_id")
+                || !metadata.containsKey("commercial_line")
+                || !metadata.containsKey("plan_type")
+                || !metadata.containsKey("billing_cycle")) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        var subscription = subscriptionCommandService.handle(new ActivateCheckoutSubscriptionCommand(
+                parseUserId(metadata.get("medibridge_user_id")),
+                CommercialLine.valueOf(metadata.get("commercial_line")),
+                PlanType.valueOf(metadata.get("plan_type")),
+                BillingCycle.valueOf(metadata.get("billing_cycle")),
+                session.customerId(),
+                session.id()));
+
+        return subscription
+                .map(value -> ResponseEntity.ok(SubscriptionResponseFromEntityAssembler.toResourceFromEntity(value)))
+                .orElseGet(() -> ResponseEntity.badRequest().build());
+    }
+
+    @PostMapping("/mock/approve")
+    public ResponseEntity<SubscriptionResponse> approveMockSubscription(@RequestBody CreateCheckoutSessionRequest resource) {
+        if (!paymentMocksEnabled) {
+            return ResponseEntity.notFound().build();
+        }
+
+        var subscription = subscriptionCommandService.handle(new ActivateCheckoutSubscriptionCommand(
+                resource.userId(),
+                resource.commercialLine(),
+                resource.planType(),
+                resource.billingCycle(),
+                "mock-local-user-" + resource.userId() + "-" + UUID.randomUUID(),
+                "mock-checkout-session-" + UUID.randomUUID()));
+
+        return subscription
+                .map(value -> ResponseEntity.ok(SubscriptionResponseFromEntityAssembler.toResourceFromEntity(value)))
+                .orElseGet(() -> ResponseEntity.badRequest().build());
     }
 
     @PostMapping("/{subscriptionId}/cancel")
@@ -135,5 +200,12 @@ public class SubscriptionController {
         return paymentMethod
                 .map(value -> new ResponseEntity<>(PaymentMethodResponseFromEntityAssembler.toResourceFromEntity(value), HttpStatus.CREATED))
                 .orElseGet(() -> ResponseEntity.badRequest().build());
+    }
+
+    private Long parseUserId(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        return Long.valueOf(value);
     }
 }

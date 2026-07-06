@@ -13,6 +13,7 @@ import com.stripe.param.checkout.SessionCreateParams;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import pe.edu.upc.medibridge.payments.application.internal.outboundservices.acl.CheckoutSessionDetails;
 import pe.edu.upc.medibridge.payments.application.internal.outboundservices.acl.StripePaymentGatewayService;
 import pe.edu.upc.medibridge.payments.domain.model.entities.Plan;
 import pe.edu.upc.medibridge.payments.domain.model.exceptions.PaymentProcessingException;
@@ -108,6 +109,22 @@ public class StripePaymentGatewayAdapter implements StripePaymentGatewayService 
     }
 
     @Override
+    @CircuitBreaker(name = "stripeApi", fallbackMethod = "retrieveCheckoutSessionFallback")
+    public CheckoutSessionDetails retrieveCheckoutSession(String checkoutSessionId) {
+        try {
+            var session = Session.retrieve(checkoutSessionId);
+            return new CheckoutSessionDetails(
+                    session.getId(),
+                    session.getStatus(),
+                    session.getPaymentStatus(),
+                    session.getCustomer(),
+                    session.getMetadata());
+        } catch (StripeException exception) {
+            throw new PaymentProcessingException("Stripe checkout session retrieval failed: " + exception.getMessage());
+        }
+    }
+
+    @Override
     @CircuitBreaker(name = "stripeApi", fallbackMethod = "cancelActiveSubscriptionsFallback")
     public void cancelActiveSubscriptions(String stripeCustomerId) {
         try {
@@ -135,6 +152,10 @@ public class StripePaymentGatewayAdapter implements StripePaymentGatewayService 
 
     private String createCheckoutSessionFallback(Long userId, Plan plan, String successUrl, String cancelUrl, Throwable exception) {
         throw new PaymentProcessingException("Stripe checkout session circuit breaker fallback: " + exception.getMessage());
+    }
+
+    private CheckoutSessionDetails retrieveCheckoutSessionFallback(String checkoutSessionId, Throwable exception) {
+        throw new PaymentProcessingException("Stripe checkout session retrieval circuit breaker fallback: " + exception.getMessage());
     }
 
     private void cancelActiveSubscriptionsFallback(String stripeCustomerId, Throwable exception) {

@@ -84,8 +84,17 @@ public class StripeWebhookController {
     }
 
     private void activateSubscriptionFromCheckoutSession(Session session) {
+        if (!"complete".equals(session.getStatus())
+                || (!"paid".equals(session.getPaymentStatus()) && !"no_payment_required".equals(session.getPaymentStatus()))) {
+            return;
+        }
+
         var metadata = session.getMetadata();
-        if (metadata == null || metadata.isEmpty()) {
+        if (metadata == null
+                || !metadata.containsKey("medibridge_user_id")
+                || !metadata.containsKey("commercial_line")
+                || !metadata.containsKey("plan_type")
+                || !metadata.containsKey("billing_cycle")) {
             return;
         }
         subscriptionCommandService.handle(new ActivateCheckoutSubscriptionCommand(

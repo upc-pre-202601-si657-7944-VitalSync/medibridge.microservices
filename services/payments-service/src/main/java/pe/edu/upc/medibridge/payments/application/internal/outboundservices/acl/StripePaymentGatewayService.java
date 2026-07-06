@@ -6,6 +6,7 @@ public interface StripePaymentGatewayService {
     String createCustomer(Long userId);
     String createPaymentIntent(Long userId, Plan plan);
     String createCheckoutSession(Long userId, Plan plan, String successUrl, String cancelUrl);
+    CheckoutSessionDetails retrieveCheckoutSession(String checkoutSessionId);
     void cancelActiveSubscriptions(String stripeCustomerId);
 }
 

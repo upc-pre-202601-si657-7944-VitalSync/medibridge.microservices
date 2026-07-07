@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,9 +21,13 @@ import pe.edu.upc.medibridge.profiles.application.internal.outboundservices.acl.
 import pe.edu.upc.medibridge.profiles.domain.model.commands.AssignDoctorToPatientCommand;
 import pe.edu.upc.medibridge.profiles.domain.model.commands.LinkFamilyMemberToPatientCommand;
 import pe.edu.upc.medibridge.profiles.domain.model.exceptions.InvalidProfileRequestException;
+import pe.edu.upc.medibridge.profiles.domain.model.queries.GetCareTeamMembersByPatientIdQuery;
 import pe.edu.upc.medibridge.profiles.domain.services.CareRelationshipCommandService;
+import pe.edu.upc.medibridge.profiles.domain.services.CareRelationshipQueryService;
+import pe.edu.upc.medibridge.profiles.interfaces.rest.resources.CareTeamMembersResource;
 import pe.edu.upc.medibridge.profiles.interfaces.rest.resources.DoctorPatientAssignmentResource;
 import pe.edu.upc.medibridge.profiles.interfaces.rest.resources.FamilyPatientLinkResource;
+import pe.edu.upc.medibridge.profiles.interfaces.rest.transform.CareTeamMembersResourceFromValueObjectAssembler;
 import pe.edu.upc.medibridge.profiles.interfaces.rest.transform.DoctorPatientAssignmentResourceFromEntityAssembler;
 import pe.edu.upc.medibridge.profiles.interfaces.rest.transform.FamilyPatientLinkResourceFromEntityAssembler;
 
@@ -40,13 +45,30 @@ import pe.edu.upc.medibridge.profiles.interfaces.rest.transform.FamilyPatientLin
 public class CareRelationshipsController {
 
     private final CareRelationshipCommandService careRelationshipCommandService;
+    private final CareRelationshipQueryService careRelationshipQueryService;
     private final ExternalIamContextService externalIamContextService;
 
     public CareRelationshipsController(
             CareRelationshipCommandService careRelationshipCommandService,
+            CareRelationshipQueryService careRelationshipQueryService,
             ExternalIamContextService externalIamContextService) {
         this.careRelationshipCommandService = careRelationshipCommandService;
+        this.careRelationshipQueryService = careRelationshipQueryService;
         this.externalIamContextService = externalIamContextService;
+    }
+
+    @GetMapping("/care-team-members")
+    public ResponseEntity<CareTeamMembersResource> getCareTeamMembers(
+            @PathVariable Long patientId,
+            @AuthenticationPrincipal Jwt jwt) {
+        var userId = resolveAuthenticatedUserId(jwt);
+        var members = careRelationshipQueryService.handle(new GetCareTeamMembersByPatientIdQuery(patientId));
+
+        if (!members.careTeamUserIds().contains(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        return ResponseEntity.ok(CareTeamMembersResourceFromValueObjectAssembler.toResourceFromValueObject(members));
     }
 
     @ApiResponse(responseCode = "201", description = "Created")

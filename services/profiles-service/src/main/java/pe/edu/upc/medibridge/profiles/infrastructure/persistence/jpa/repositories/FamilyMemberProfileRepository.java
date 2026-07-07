@@ -4,8 +4,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import pe.edu.upc.medibridge.profiles.domain.model.aggregates.FamilyMemberProfile;
 
+import java.util.Optional;
+
 @Repository
 public interface FamilyMemberProfileRepository extends JpaRepository<FamilyMemberProfile, Long> {
     boolean existsByUserId(Long userId);
+    Optional<FamilyMemberProfile> findByUserId(Long userId);
 }
 

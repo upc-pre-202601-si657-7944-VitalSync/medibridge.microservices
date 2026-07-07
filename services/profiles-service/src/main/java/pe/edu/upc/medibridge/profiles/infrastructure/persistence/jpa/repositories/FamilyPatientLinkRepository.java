@@ -12,6 +12,7 @@ import java.util.List;
 public interface FamilyPatientLinkRepository extends JpaRepository<FamilyPatientLink, Long> {
     boolean existsByFamilyMemberProfileIdAndPatientIdAndActiveTrue(Long familyMemberProfileId, Long patientId);
     List<FamilyPatientLink> findAllByPatientIdAndActiveTrue(Long patientId);
+    List<FamilyPatientLink> findAllByFamilyMemberProfileIdAndActiveTrue(Long familyMemberProfileId);
 
     @Query("select count(distinct link.patientId) from FamilyPatientLink link where link.familyMemberProfileId = :familyMemberProfileId and link.active = true")
     long countActivePatientsByFamilyMemberProfileId(@Param("familyMemberProfileId") Long familyMemberProfileId);

@@ -1,6 +1,7 @@
 package pe.edu.upc.medibridge.medicationmanagement.application.commandservices;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pe.edu.upc.medibridge.medicationmanagement.application.outboundservices.acl.ExternalPatientContextService;
 import pe.edu.upc.medibridge.medicationmanagement.application.queryservices.AuthenticatedPatientAccessService;
 import pe.edu.upc.medibridge.medicationmanagement.domain.model.aggregates.MedicationSchedule;
@@ -11,6 +12,7 @@ import pe.edu.upc.medibridge.medicationmanagement.domain.services.MedicationSche
 import pe.edu.upc.medibridge.medicationmanagement.infrastructure.persistence.jpa.repositories.MedicationRepository;
 import pe.edu.upc.medibridge.medicationmanagement.infrastructure.persistence.jpa.repositories.MedicationScheduleRepository;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -32,13 +34,20 @@ public class MedicationScheduleCommandServiceImpl implements MedicationScheduleC
     }
 
     @Override
+    @Transactional
     public Optional<MedicationSchedule> handle(CreateMedicationScheduleCommand command) {
         if (!externalPatientContextService.patientExists(command.patientId())) {
             throw new InvalidPatientReferenceException(command.patientId());
         }
         authenticatedPatientAccessService.requireAccess(command.requestedByUserId(), command.patientId());
-        medicationRepository.findById(command.medicationId())
+        var medication = medicationRepository.findByIdForUpdate(command.medicationId())
                 .orElseThrow(() -> new MedicationNotFoundException(command.medicationId()));
+        if (!Objects.equals(medication.getPatientId(), command.patientId())) {
+            throw new IllegalArgumentException("Medication does not belong to the requested patient");
+        }
+        if (!medication.isActive()) {
+            throw new IllegalStateException("Cannot schedule an inactive medication");
+        }
         return Optional.of(medicationScheduleRepository.save(new MedicationSchedule(command)));
     }
 }

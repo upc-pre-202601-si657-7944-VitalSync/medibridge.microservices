@@ -1,5 +1,6 @@
 package pe.edu.upc.medibridge.medicationmanagement.domain.services;
 
+import pe.edu.upc.medibridge.medicationmanagement.domain.model.commands.DeactivateMedicationCommand;
 import pe.edu.upc.medibridge.medicationmanagement.domain.model.commands.RegisterMedicationCommand;
 import pe.edu.upc.medibridge.medicationmanagement.domain.model.commands.UpdateMedicationCommand;
 import pe.edu.upc.medibridge.medicationmanagement.domain.model.commands.UpdateMedicationStockCommand;
@@ -11,5 +12,6 @@ public interface MedicationInventoryCommandService {
     Optional<Medication> handle(RegisterMedicationCommand command);
     Optional<Medication> handle(UpdateMedicationCommand command);
     Optional<Medication> handle(UpdateMedicationStockCommand command);
+    void handle(DeactivateMedicationCommand command);
 }
 

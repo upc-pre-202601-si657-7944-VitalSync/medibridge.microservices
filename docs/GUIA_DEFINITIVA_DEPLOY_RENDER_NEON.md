@@ -134,20 +134,44 @@ medibridge_reports
 Formato JDBC correcto para Neon:
 
 ```text
-jdbc:postgresql://<NEON_HOST>:5432/<DATABASE>?sslmode=require
+jdbc:postgresql://<NEON_HOST>:5432/<DATABASE>?sslmode=require&channel_binding=require
 ```
 
 Ejemplo:
 
 ```text
-jdbc:postgresql://ep-demo.us-east-1.aws.neon.tech:5432/medibridge_iam?sslmode=require
+jdbc:postgresql://ep-demo.us-east-1.aws.neon.tech:5432/medibridge_iam?sslmode=require&channel_binding=require
 ```
 
-No pongas usuario/password dentro del JDBC. Van en variables separadas:
+No pongas `@` al inicio del host. Esto esta mal:
+
+```text
+jdbc:postgresql://@ep-demo.us-east-1.aws.neon.tech/medibridge_iam?sslmode=require&channel_binding=require
+```
+
+El `@` solo aparece en el connection string completo que Neon muestra cuando incluye usuario y password:
+
+```text
+postgresql://<NEON_USER>:<NEON_PASSWORD>@<NEON_HOST>/<DATABASE>?sslmode=require&channel_binding=require
+```
+
+Para Spring Boot en este proyecto no uses ese formato completo. Pon usuario y password en variables separadas:
 
 ```text
 IAM_DB_USERNAME=<NEON_USER>
 IAM_DB_PASSWORD=<NEON_PASSWORD>
+```
+
+Si copias desde Neon, separalo asi:
+
+```text
+Neon completo:
+postgresql://neondb_owner:password@ep-demo.us-east-1.aws.neon.tech/medibridge_iam?sslmode=require&channel_binding=require
+
+En Render:
+IAM_DB_URL=jdbc:postgresql://ep-demo.us-east-1.aws.neon.tech:5432/medibridge_iam?sslmode=require&channel_binding=require
+IAM_DB_USERNAME=neondb_owner
+IAM_DB_PASSWORD=password
 ```
 
 ## 5. Preparar RabbitMQ en CloudAMQP

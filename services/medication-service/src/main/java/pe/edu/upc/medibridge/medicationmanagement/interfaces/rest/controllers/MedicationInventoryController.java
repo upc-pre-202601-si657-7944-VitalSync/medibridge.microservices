@@ -14,6 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import pe.edu.upc.medibridge.medicationmanagement.application.queryservices.AuthenticatedPatientAccessService;
+import pe.edu.upc.medibridge.medicationmanagement.domain.model.commands.DeactivateMedicationCommand;
 import pe.edu.upc.medibridge.medicationmanagement.domain.model.commands.UpdateMedicationCommand;
 import pe.edu.upc.medibridge.medicationmanagement.domain.model.commands.UpdateMedicationStockCommand;
 import pe.edu.upc.medibridge.medicationmanagement.domain.model.queries.GetLowStockMedicationsQuery;
@@ -126,6 +127,16 @@ public class MedicationInventoryController {
         return medication
                 .map(value -> ResponseEntity.ok(MedicationResponseFromEntityAssembler.toResourceFromEntity(value)))
                 .orElseGet(() -> ResponseEntity.badRequest().build());
+    }
+
+    @ApiResponse(responseCode = "204", description = "Medication retired")
+    @DeleteMapping("/{medicationId}")
+    public ResponseEntity<Void> deactivateMedication(
+            @PathVariable Integer medicationId,
+            @AuthenticationPrincipal Jwt jwt) {
+        var requestedByUserId = authenticatedPatientAccessService.resolveUserId(jwt);
+        medicationInventoryCommandService.handle(new DeactivateMedicationCommand(medicationId, requestedByUserId));
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/patients/{patientId}/low-stock")

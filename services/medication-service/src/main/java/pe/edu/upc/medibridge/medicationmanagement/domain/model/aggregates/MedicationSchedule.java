@@ -39,6 +39,7 @@ public class MedicationSchedule extends AuditableAbstractAggregateRoot<Medicatio
     private boolean active;
 
     public MedicationSchedule(CreateMedicationScheduleCommand command) {
+        validate(command);
         this.medicationId = command.medicationId();
         this.patientId = command.patientId();
         this.frequencyType = command.frequencyType();
@@ -49,8 +50,35 @@ public class MedicationSchedule extends AuditableAbstractAggregateRoot<Medicatio
         this.active = true;
     }
 
+    private void validate(CreateMedicationScheduleCommand command) {
+        if (command.frequencyType() == null) {
+            throw new IllegalArgumentException("Medication frequency is required");
+        }
+        if (command.timesPerDay() == null || command.timesPerDay() <= 0) {
+            throw new IllegalArgumentException("Times per day must be positive");
+        }
+        if (command.administrationTime() == null) {
+            throw new IllegalArgumentException("Administration time is required");
+        }
+        if (command.startDate() == null) {
+            throw new IllegalArgumentException("Schedule start date is required");
+        }
+        if (command.endDate() != null && command.endDate().isBefore(command.startDate())) {
+            throw new IllegalArgumentException("Schedule end date cannot be before start date");
+        }
+    }
+
     public void deactivate() {
         this.active = false;
+    }
+
+    public boolean isActiveOn(LocalDate date) {
+        if (date == null) {
+            throw new IllegalArgumentException("Schedule date is required");
+        }
+        return active
+                && !startDate.isAfter(date)
+                && (endDate == null || !endDate.isBefore(date));
     }
 }
 

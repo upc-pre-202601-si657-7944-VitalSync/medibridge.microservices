@@ -3,7 +3,7 @@ package pe.edu.upc.medibridge.reportsanalytics.interfaces.rest.resources;
 import pe.edu.upc.medibridge.reportsanalytics.domain.model.valueobjects.ReportType;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 public record ClinicalReportResponse(
@@ -12,7 +12,7 @@ public record ClinicalReportResponse(
         ReportType reportType,
         LocalDate periodStartDate,
         LocalDate periodEndDate,
-        LocalDateTime generatedAt,
+        OffsetDateTime generatedAt,
         String summary,
         String pdfPath,
         List<ReportSectionResponse> sections) {

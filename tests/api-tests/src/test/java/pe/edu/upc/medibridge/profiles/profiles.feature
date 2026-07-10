@@ -123,14 +123,34 @@ Feature: Profiles Service API
     * def doctorProfileId = response.id
 
     * def careFamilyName = 'Care Family ' + fullNameSuffix
-    * def familyRequest = { userId: '#(familyAuth.userId)', fullName: '#(careFamilyName)' }
+    * def familyRequest = { fullName: '#(careFamilyName)' }
     Given path 'profiles', 'family-members'
-      And header Authorization = auth.authorization
+      And header Authorization = familyAuth.authorization
       And request familyRequest
     When method post
     Then status 201
     * def familyMemberProfileId = response.id
 
+    * url paymentsBaseUrl
+    * def institutionSubscriptionRequest =
+      """
+      {
+        "userId": #(auth.userId),
+        "commercialLine": "INSTITUTION",
+        "planType": "INSTITUTION_BASIC",
+        "billingCycle": "MONTHLY",
+        "returnUrl": "http://localhost:8080"
+      }
+      """
+    Given path 'subscriptions', 'mock', 'approve'
+      And header Authorization = auth.authorization
+      And request institutionSubscriptionRequest
+    When method post
+    Then status 200
+      And match response.userId == auth.userId
+      And match response.plan.commercialLine == 'INSTITUTION'
+
+    * url profilesBaseUrl
     Given path 'profiles', 'patients', patientId, 'doctors', doctorProfileId
       And header Authorization = auth.authorization
     When method post
@@ -141,7 +161,7 @@ Feature: Profiles Service API
       And match response.active == true
 
     Given path 'profiles', 'patients', patientId, 'family-members', familyMemberProfileId
-      And header Authorization = auth.authorization
+      And header Authorization = familyAuth.authorization
     When method post
     Then status 201
       And match response.id == '#number'

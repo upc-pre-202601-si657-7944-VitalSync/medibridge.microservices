@@ -37,6 +37,8 @@ import pe.edu.upc.medibridge.payments.interfaces.rest.transform.CreateSubscripti
 import pe.edu.upc.medibridge.payments.interfaces.rest.transform.PaymentMethodResponseFromEntityAssembler;
 import pe.edu.upc.medibridge.payments.interfaces.rest.transform.SubscriptionResponseFromEntityAssembler;
 
+import java.net.URI;
+import java.util.Locale;
 import java.util.UUID;
 
 @RestController
@@ -97,11 +99,12 @@ public class SubscriptionController {
             return ResponseEntity.badRequest().build();
         }
 
+        var checkoutReturnUrl = resolveCheckoutReturnUrl(resource.returnUrl());
         var checkoutUrl = stripePaymentGatewayService.createCheckoutSession(
                 resource.userId(),
                 plan,
-                frontendAppUrl + "/subscriptions?checkout=success&session_id={CHECKOUT_SESSION_ID}",
-                frontendAppUrl + "/subscriptions?checkout=cancelled");
+                checkoutReturnUrl + "/subscriptions?checkout=success&session_id={CHECKOUT_SESSION_ID}",
+                checkoutReturnUrl + "/subscriptions?checkout=cancelled");
         return ResponseEntity.ok(new CheckoutSessionResponse(checkoutUrl));
     }
 
@@ -207,5 +210,51 @@ public class SubscriptionController {
             return null;
         }
         return Long.valueOf(value);
+    }
+
+    private String resolveCheckoutReturnUrl(String requestedReturnUrl) {
+        var requestedOrigin = toAllowedOrigin(requestedReturnUrl);
+        if (requestedOrigin != null) {
+            return requestedOrigin;
+        }
+
+        var configuredOrigin = toAllowedOrigin(frontendAppUrl);
+        return configuredOrigin != null ? configuredOrigin : frontendAppUrl;
+    }
+
+    private String toAllowedOrigin(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+
+        try {
+            var uri = URI.create(value.trim());
+            var scheme = uri.getScheme();
+            var host = uri.getHost();
+            if (scheme == null || host == null) {
+                return null;
+            }
+
+            var normalizedScheme = scheme.toLowerCase(Locale.ROOT);
+            var normalizedHost = host.toLowerCase(Locale.ROOT);
+            if (!"https".equals(normalizedScheme)
+                    && (!"http".equals(normalizedScheme) || !isLocalDevelopmentHost(normalizedHost))) {
+                return null;
+            }
+
+            var port = uri.getPort();
+            return normalizedScheme + "://" + normalizedHost + (port >= 0 ? ":" + port : "");
+        } catch (IllegalArgumentException exception) {
+            return null;
+        }
+    }
+
+    private boolean isLocalDevelopmentHost(String host) {
+        return "localhost".equals(host)
+                || "127.0.0.1".equals(host)
+                || "10.0.2.2".equals(host)
+                || host.startsWith("192.168.")
+                || host.startsWith("10.")
+                || host.matches("172\\.(1[6-9]|2\\d|3[0-1])\\..*");
     }
 }

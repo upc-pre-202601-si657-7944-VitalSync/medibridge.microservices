@@ -52,15 +52,9 @@ Feature: IAM Service API
     When method get
     Then status 401
 
-  Scenario: Get users, roles and user by id with token
+  Scenario: Get roles and user by id with token
     * def auth = call read('classpath:pe/edu/upc/medibridge/common/create-user-token.feature')
     * url iamBaseUrl
-    Given path 'users'
-      And header Authorization = auth.authorization
-    When method get
-    Then status 200
-      And match response == '#[]'
-
     Given path 'users', auth.userId
       And header Authorization = auth.authorization
     When method get

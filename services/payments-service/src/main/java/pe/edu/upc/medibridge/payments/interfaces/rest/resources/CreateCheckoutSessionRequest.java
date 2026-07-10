@@ -8,5 +8,6 @@ public record CreateCheckoutSessionRequest(
         Long userId,
         CommercialLine commercialLine,
         PlanType planType,
-        BillingCycle billingCycle) {
+        BillingCycle billingCycle,
+        String returnUrl) {
 }

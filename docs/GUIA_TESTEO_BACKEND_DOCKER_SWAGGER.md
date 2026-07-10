@@ -468,11 +468,11 @@ Validacion de rango de fechas:
 - El reporte debe resumir solo observaciones, dosis administradas y citas del periodo solicitado.
 - En la seccion de medicacion, `activeMedications` y `lowStockMedications` representan el inventario activo actual; `doseAdministrations` es el contador filtrado por `startDate` y `endDate`.
 
-Generar PDF:
+Generar PDF y descargarlo:
 
 `POST /api/v1/clinical-reports/{reportId}/pdf`
 
-Descargar PDF:
+Volver a descargar un PDF ya generado:
 
 `GET /api/v1/clinical-reports/{reportId}/pdf`
 

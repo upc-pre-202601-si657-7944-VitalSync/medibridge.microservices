@@ -12,16 +12,21 @@ import pe.edu.upc.medibridge.reportsanalytics.domain.model.commands.GeneratePdfR
 import pe.edu.upc.medibridge.reportsanalytics.domain.model.entities.ReportSection;
 import pe.edu.upc.medibridge.reportsanalytics.domain.model.exceptions.InvalidPatientReferenceException;
 import pe.edu.upc.medibridge.reportsanalytics.domain.model.exceptions.ReportNotFoundException;
+import pe.edu.upc.medibridge.reportsanalytics.domain.model.valueobjects.ReportType;
 import pe.edu.upc.medibridge.reportsanalytics.domain.services.ClinicalReportCommandService;
 import pe.edu.upc.medibridge.reportsanalytics.infrastructure.messaging.publishers.ReportsAnalyticsIntegrationEventPublisher;
 import pe.edu.upc.medibridge.reportsanalytics.infrastructure.pdf.ITextPdfReportGenerator;
 import pe.edu.upc.medibridge.reportsanalytics.infrastructure.pdf.PdfReportStorage;
 import pe.edu.upc.medibridge.reportsanalytics.infrastructure.persistence.jpa.repositories.ClinicalReportRepository;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 @Service
 public class ClinicalReportCommandServiceImpl implements ClinicalReportCommandService {
+    private static final DateTimeFormatter REPORT_DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
     private final ClinicalReportRepository clinicalReportRepository;
     private final ITextPdfReportGenerator pdfReportGenerator;
     private final PdfReportStorage pdfReportStorage;
@@ -61,27 +66,27 @@ public class ClinicalReportCommandServiceImpl implements ClinicalReportCommandSe
         authenticatedPatientAccessService.requireAccess(command.requestedByUserId(), command.patientId());
 
         var patientName = externalPatientProfileService.getPatientFullName(command.patientId())
-                .orElse("Registered patient");
-        var summary = "Clinical report generated for " + patientName
-                + " from " + command.startDate()
-                + " to " + command.endDate()
+                .orElse("Paciente registrado");
+        var summary = "Reporte clinico de " + patientName
+                + ", correspondiente al periodo del " + formatDate(command.startDate())
+                + " al " + formatDate(command.endDate())
                 + ".";
         var report = new ClinicalReport(command, summary);
         report.addSection(new ReportSection(
-                "Patient overview",
-                "Patient: " + patientName + ". Report type: " + command.reportType()
-                        + ". Evaluation period: " + command.startDate() + " to " + command.endDate() + ".",
+                "Datos del paciente",
+                "Paciente: " + patientName + ". Tipo de reporte: " + describeReportType(command.reportType())
+                        + ". Periodo evaluado: " + formatDate(command.startDate()) + " al " + formatDate(command.endDate()) + ".",
                 1));
-        report.addSection(new ReportSection("Health monitoring", externalHealthMonitoringService.getPatientClinicalSummary(
+        report.addSection(new ReportSection("Signos vitales y monitoreo", externalHealthMonitoringService.getPatientClinicalSummary(
                 command.patientId(),
                 command.startDate(),
                 command.endDate()), 2));
-        report.addSection(new ReportSection("Medication management", externalMedicationService.getMedicationSummary(
+        report.addSection(new ReportSection("Medicacion", externalMedicationService.getMedicationSummary(
                 command.patientId(),
                 command.startDate(),
                 command.endDate()), 3));
         report.addSection(new ReportSection(
-                "Appointments",
+                "Citas medicas",
                 externalAppointmentService.getAppointmentSummary(
                         command.patientId(),
                         command.startDate(),
@@ -101,6 +106,18 @@ public class ClinicalReportCommandServiceImpl implements ClinicalReportCommandSe
         var pdfPath = pdfReportStorage.savePdf(report.getId(), pdf);
         report.attachPdf(pdfPath);
         return Optional.of(clinicalReportRepository.save(report));
+    }
+
+    private String formatDate(LocalDate date) {
+        return date == null ? "No registrado" : date.format(REPORT_DATE_FORMAT);
+    }
+
+    private String describeReportType(ReportType reportType) {
+        return switch (reportType) {
+            case VITAL_SIGNS -> "Signos vitales";
+            case MEDICATION -> "Medicacion";
+            case FULL_CLINICAL -> "Clinico completo";
+        };
     }
 }
 

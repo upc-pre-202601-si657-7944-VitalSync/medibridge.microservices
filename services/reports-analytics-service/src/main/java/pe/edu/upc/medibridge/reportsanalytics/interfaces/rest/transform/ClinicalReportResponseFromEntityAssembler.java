@@ -4,6 +4,8 @@ import pe.edu.upc.medibridge.reportsanalytics.domain.model.aggregates.ClinicalRe
 import pe.edu.upc.medibridge.reportsanalytics.interfaces.rest.resources.ClinicalReportResponse;
 import pe.edu.upc.medibridge.reportsanalytics.interfaces.rest.resources.ReportSectionResponse;
 
+import java.time.ZoneOffset;
+
 public class ClinicalReportResponseFromEntityAssembler {
     public static ClinicalReportResponse toResourceFromEntity(ClinicalReport entity) {
         var sections = entity.getSections().stream()
@@ -19,7 +21,7 @@ public class ClinicalReportResponseFromEntityAssembler {
                 entity.getReportType(),
                 entity.getPeriodStartDate(),
                 entity.getPeriodEndDate(),
-                entity.getGeneratedAt(),
+                entity.getGeneratedAt().atOffset(ZoneOffset.UTC),
                 entity.getSummary(),
                 entity.getPdfPath(),
                 sections);

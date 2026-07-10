@@ -33,6 +33,7 @@ import pe.edu.upc.medibridge.healthmonitoring.interfaces.rest.resources.PatientH
 import pe.edu.upc.medibridge.healthmonitoring.interfaces.rest.resources.RecordPatientHealthObservationResource;
 import pe.edu.upc.medibridge.healthmonitoring.interfaces.rest.transform.ClinicalAlertResourceFromEntityAssembler;
 import pe.edu.upc.medibridge.healthmonitoring.interfaces.rest.transform.PatientHealthObservationResourceFromEntityAssembler;
+import pe.edu.upc.medibridge.healthmonitoring.interfaces.rest.transform.PatientHealthSummaryResourceFromDataAssembler;
 import pe.edu.upc.medibridge.healthmonitoring.interfaces.rest.transform.RecordPatientHealthObservationCommandFromResourceAssembler;
 
 import java.util.List;
@@ -127,6 +128,12 @@ public class HealthMonitoringController {
         premiumAccessService.requirePaidSubscription(jwt, "patient health summaries");
         var requestedByUserId = authenticatedPatientAccessService.resolveUserId(jwt);
         var summary = patientHealthSummaryQueryService.getSummary(patientId, requestedByUserId);
-        return ResponseEntity.ok(new PatientHealthSummaryResource(patientId, summary));
+        var observations = healthObservationQueryService.handle(new GetPatientHealthObservationsQuery(patientId, requestedByUserId));
+        var activeAlerts = clinicalAlertQueryService.handle(new GetActiveClinicalAlertsByPatientQuery(patientId, requestedByUserId));
+        return ResponseEntity.ok(PatientHealthSummaryResourceFromDataAssembler.toResourceFromData(
+                patientId,
+                summary,
+                observations,
+                activeAlerts.size()));
     }
 }

@@ -10,6 +10,7 @@ import pe.edu.upc.medibridge.shared.domain.model.aggregates.AuditableAbstractAgg
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,7 +50,7 @@ public class ClinicalReport extends AuditableAbstractAggregateRoot<ClinicalRepor
         this.reportType = command.reportType();
         this.periodStartDate = command.startDate();
         this.periodEndDate = command.endDate();
-        this.generatedAt = LocalDateTime.now();
+        this.generatedAt = LocalDateTime.now(ZoneOffset.UTC);
         this.summary = summary;
     }
 

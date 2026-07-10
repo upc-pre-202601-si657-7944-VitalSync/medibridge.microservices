@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pe.edu.upc.medibridge.medicationmanagement.infrastructure.persistence.jpa.repositories.DoseAdministrationRepository;
 import pe.edu.upc.medibridge.medicationmanagement.infrastructure.persistence.jpa.repositories.MedicationRepository;
+import pe.edu.upc.medibridge.medicationmanagement.domain.model.valueobjects.DoseAdministrationStatus;
+import pe.edu.upc.medibridge.medicationmanagement.interfaces.rest.resources.ActiveMedicationSummaryResource;
 import pe.edu.upc.medibridge.medicationmanagement.interfaces.rest.resources.MedicationSummaryResource;
 
 import java.time.LocalDate;
@@ -51,16 +53,29 @@ public class MedicationInternalController {
                 .filter(medication -> medication.getStockQuantity() <= medication.getLowStockThreshold())
                 .toList();
         var doseAdministrations = startDate != null && endDate != null
-                ? doseAdministrationRepository.countByPatientIdAndOccurredAtBetween(
+                ? doseAdministrationRepository.countByPatientIdAndStatusAndOccurredAtBetween(
                 patientId,
+                DoseAdministrationStatus.ADMINISTERED,
                 startDate.atStartOfDay(),
                 endDate.plusDays(1).atStartOfDay())
-                : doseAdministrationRepository.countByPatientId(patientId);
+                : doseAdministrationRepository.countByPatientIdAndStatus(
+                patientId,
+                DoseAdministrationStatus.ADMINISTERED);
+        var activeMedicationDetails = activeMedications.stream()
+                .map(medication -> new ActiveMedicationSummaryResource(
+                        medication.getId(),
+                        medication.getName(),
+                        medication.getDosageAmount(),
+                        medication.getDosageUnit(),
+                        medication.getAdministrationRoute(),
+                        medication.getStockQuantity()))
+                .toList();
 
         return ResponseEntity.ok(new MedicationSummaryResource(
                 patientId,
                 activeMedications.size(),
                 lowStockMedications.size(),
-                doseAdministrations));
+                doseAdministrations,
+                activeMedicationDetails));
     }
 }

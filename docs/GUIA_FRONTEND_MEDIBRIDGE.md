@@ -317,8 +317,8 @@ Request:
 | Accion | Metodo | Endpoint |
 |---|---|---|
 | Generar reporte | POST | Reports `/api/v1/clinical-reports` |
-| Generar PDF | POST | Reports `/api/v1/clinical-reports/{reportId}/pdf` |
-| Descargar PDF | GET | Reports `/api/v1/clinical-reports/{reportId}/pdf` |
+| Generar y descargar PDF | POST | Reports `/api/v1/clinical-reports/{reportId}/pdf` |
+| Volver a descargar PDF | GET | Reports `/api/v1/clinical-reports/{reportId}/pdf` |
 | Obtener reporte | GET | Reports `/api/v1/clinical-reports/{reportId}` |
 | Listar reportes | GET | Reports `/api/v1/clinical-reports/patients/{patientId}` |
 | Dashboard analitico | GET | Reports `/api/v1/analytics-dashboards/patients/{patientId}` |

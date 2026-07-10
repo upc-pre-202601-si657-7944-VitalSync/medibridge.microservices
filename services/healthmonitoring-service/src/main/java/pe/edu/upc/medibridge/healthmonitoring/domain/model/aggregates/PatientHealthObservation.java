@@ -27,8 +27,7 @@ public class PatientHealthObservation extends AuditableAbstractAggregateRoot<Pat
     @Column(nullable = false)
     private Long patientId;
 
-    @NotNull
-    @Column(nullable = false)
+    @Column
     private Long recordedByDoctorProfileId;
 
     @NotNull

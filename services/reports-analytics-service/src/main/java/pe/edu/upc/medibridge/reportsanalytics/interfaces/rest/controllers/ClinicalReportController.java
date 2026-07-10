@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import pe.edu.upc.medibridge.shared.interfaces.rest.resources.ErrorResponseResource;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -17,13 +19,13 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import pe.edu.upc.medibridge.reportsanalytics.application.internal.queryservices.AuthenticatedPatientAccessService;
 import pe.edu.upc.medibridge.reportsanalytics.application.internal.queryservices.PremiumAccessService;
+import pe.edu.upc.medibridge.reportsanalytics.domain.model.aggregates.ClinicalReport;
 import pe.edu.upc.medibridge.reportsanalytics.domain.model.commands.GeneratePdfReportCommand;
 import pe.edu.upc.medibridge.reportsanalytics.domain.model.queries.GetReportByIdQuery;
 import pe.edu.upc.medibridge.reportsanalytics.domain.model.queries.GetReportsByPatientQuery;
 import pe.edu.upc.medibridge.reportsanalytics.domain.services.ClinicalReportCommandService;
 import pe.edu.upc.medibridge.reportsanalytics.domain.services.ClinicalReportQueryService;
 import pe.edu.upc.medibridge.reportsanalytics.infrastructure.pdf.ITextPdfReportGenerator;
-import pe.edu.upc.medibridge.reportsanalytics.infrastructure.pdf.PdfReportStorage;
 import pe.edu.upc.medibridge.reportsanalytics.interfaces.rest.resources.ClinicalReportResponse;
 import pe.edu.upc.medibridge.reportsanalytics.interfaces.rest.resources.GenerateReportRequest;
 import pe.edu.upc.medibridge.reportsanalytics.interfaces.rest.transform.ClinicalReportResponseFromEntityAssembler;
@@ -47,7 +49,6 @@ public class ClinicalReportController {
     private final ClinicalReportCommandService clinicalReportCommandService;
     private final ClinicalReportQueryService clinicalReportQueryService;
     private final ITextPdfReportGenerator pdfReportGenerator;
-    private final PdfReportStorage pdfReportStorage;
     private final PremiumAccessService premiumAccessService;
     private final AuthenticatedPatientAccessService authenticatedPatientAccessService;
 
@@ -55,13 +56,11 @@ public class ClinicalReportController {
             ClinicalReportCommandService clinicalReportCommandService,
             ClinicalReportQueryService clinicalReportQueryService,
             ITextPdfReportGenerator pdfReportGenerator,
-            PdfReportStorage pdfReportStorage,
             PremiumAccessService premiumAccessService,
             AuthenticatedPatientAccessService authenticatedPatientAccessService) {
         this.clinicalReportCommandService = clinicalReportCommandService;
         this.clinicalReportQueryService = clinicalReportQueryService;
         this.pdfReportGenerator = pdfReportGenerator;
-        this.pdfReportStorage = pdfReportStorage;
         this.premiumAccessService = premiumAccessService;
         this.authenticatedPatientAccessService = authenticatedPatientAccessService;
     }
@@ -82,20 +81,26 @@ public class ClinicalReportController {
                 .orElseGet(() -> ResponseEntity.badRequest().build());
     }
 
-    @PostMapping("/{reportId}/pdf")
-    public ResponseEntity<ClinicalReportResponse> generatePdf(
+    @ApiResponse(responseCode = "200", description = "PDF generated", content = @Content(
+            mediaType = MediaType.APPLICATION_PDF_VALUE,
+            schema = @Schema(type = "string", format = "binary")))
+    @PostMapping(value = "/{reportId}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<Resource> generatePdf(
             @PathVariable Integer reportId,
             @AuthenticationPrincipal Jwt jwt) {
         premiumAccessService.requirePaidSubscription(jwt, "PDF report generation");
         var requestedByUserId = authenticatedPatientAccessService.resolveUserId(jwt);
         var report = clinicalReportCommandService.handle(new GeneratePdfReportCommand(reportId, requestedByUserId));
         return report
-                .map(value -> ResponseEntity.ok(ClinicalReportResponseFromEntityAssembler.toResourceFromEntity(value)))
+                .map(this::buildPdfDownloadResponse)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @ApiResponse(responseCode = "200", description = "PDF downloaded", content = @Content(
+            mediaType = MediaType.APPLICATION_PDF_VALUE,
+            schema = @Schema(type = "string", format = "binary")))
     @GetMapping(value = "/{reportId}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
-    public ResponseEntity<byte[]> downloadPdf(
+    public ResponseEntity<Resource> downloadPdf(
             @PathVariable Integer reportId,
             @AuthenticationPrincipal Jwt jwt) {
         premiumAccessService.requirePaidSubscription(jwt, "PDF report downloads");
@@ -105,15 +110,7 @@ public class ClinicalReportController {
             return ResponseEntity.notFound().build();
         }
 
-        var clinicalReport = report.get();
-        var pdf = pdfReportStorage.readPdf(clinicalReport.getPdfPath())
-                .orElseGet(() -> pdfReportGenerator.generate(clinicalReport));
-        var filename = "clinical-report-" + reportId + ".pdf";
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment().filename(filename).build().toString())
-                .contentType(MediaType.APPLICATION_PDF)
-                .body(pdf);
+        return buildPdfDownloadResponse(report.get());
     }
 
     @GetMapping("/{reportId}")
@@ -139,5 +136,18 @@ public class ClinicalReportController {
                 .map(ClinicalReportResponseFromEntityAssembler::toResourceFromEntity)
                 .toList();
         return ResponseEntity.ok(resources);
+    }
+
+    private ResponseEntity<Resource> buildPdfDownloadResponse(ClinicalReport clinicalReport) {
+        var pdf = pdfReportGenerator.generate(clinicalReport);
+        var filename = "reporte-clinico-" + clinicalReport.getId() + ".pdf";
+        var resource = new ByteArrayResource(pdf);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment().filename(filename).build().toString())
+                .header(HttpHeaders.CACHE_CONTROL, "no-store")
+                .contentType(MediaType.APPLICATION_PDF)
+                .contentLength(pdf.length)
+                .body(resource);
     }
 }

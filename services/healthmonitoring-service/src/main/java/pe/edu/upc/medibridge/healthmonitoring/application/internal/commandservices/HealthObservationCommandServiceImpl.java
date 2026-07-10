@@ -73,7 +73,9 @@ public class HealthObservationCommandServiceImpl implements HealthObservationCom
 
     private void validateCommand(RecordPatientHealthObservationCommand command) {
         validatePositiveId(command.patientId(), "Patient id is required");
-        validatePositiveId(command.recordedByDoctorProfileId(), "Doctor profile id is required");
+        if (command.recordedByDoctorProfileId() != null) {
+            validatePositiveId(command.recordedByDoctorProfileId(), "Doctor profile id is required");
+        }
         validateBloodPressure(command.systolicBloodPressure(), command.diastolicBloodPressure());
         validateTemperature(command.bodyTemperature());
         validatePainLevel(command.painLevel());
@@ -131,7 +133,7 @@ public class HealthObservationCommandServiceImpl implements HealthObservationCom
         if (!externalProfilesContextService.patientExists(patientId)) {
             throw new InvalidPatientReferenceException(patientId);
         }
-        if (!externalProfilesContextService.doctorCanAttendPatient(doctorProfileId, patientId)) {
+        if (doctorProfileId != null && !externalProfilesContextService.doctorCanAttendPatient(doctorProfileId, patientId)) {
             throw new DoctorNotAssignedToPatientException(doctorProfileId, patientId);
         }
     }

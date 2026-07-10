@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import pe.edu.upc.medibridge.profiles.application.internal.outboundservices.acl.ExternalIamContextService;
 import pe.edu.upc.medibridge.profiles.domain.model.exceptions.InvalidProfileRequestException;
 import pe.edu.upc.medibridge.profiles.domain.model.queries.GetPatientProfileByIdQuery;
+import pe.edu.upc.medibridge.profiles.domain.services.AssignedPatientProfileCommandService;
 import pe.edu.upc.medibridge.profiles.domain.services.PatientProfileCommandService;
 import pe.edu.upc.medibridge.profiles.domain.services.PatientProfileQueryService;
 import pe.edu.upc.medibridge.profiles.infrastructure.persistence.jpa.repositories.DoctorPatientAssignmentRepository;
@@ -47,6 +48,7 @@ import java.util.List;
 public class PatientProfilesController {
 
     private final PatientProfileCommandService patientProfileCommandService;
+    private final AssignedPatientProfileCommandService assignedPatientProfileCommandService;
     private final PatientProfileQueryService patientProfileQueryService;
     private final ExternalIamContextService externalIamContextService;
     private final DoctorProfileRepository doctorProfileRepository;
@@ -55,12 +57,14 @@ public class PatientProfilesController {
 
     public PatientProfilesController(
             PatientProfileCommandService patientProfileCommandService,
+            AssignedPatientProfileCommandService assignedPatientProfileCommandService,
             PatientProfileQueryService patientProfileQueryService,
             ExternalIamContextService externalIamContextService,
             DoctorProfileRepository doctorProfileRepository,
             DoctorPatientAssignmentRepository doctorPatientAssignmentRepository,
             PatientProfileRepository patientProfileRepository) {
         this.patientProfileCommandService = patientProfileCommandService;
+        this.assignedPatientProfileCommandService = assignedPatientProfileCommandService;
         this.patientProfileQueryService = patientProfileQueryService;
         this.externalIamContextService = externalIamContextService;
         this.doctorProfileRepository = doctorProfileRepository;
@@ -74,6 +78,25 @@ public class PatientProfilesController {
             @RequestBody CreatePatientProfileResource resource) {
         var command = CreatePatientProfileCommandFromResourceAssembler.toCommandFromResource(resource);
         var patientProfile = patientProfileCommandService.handle(command);
+
+        if (patientProfile.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        var patientProfileResource = PatientProfileResourceFromEntityAssembler
+                .toResourceFromEntity(patientProfile.get());
+        return new ResponseEntity<>(patientProfileResource, HttpStatus.CREATED);
+    }
+
+    @ApiResponse(responseCode = "201", description = "Patient created and assigned to authenticated doctor")
+    @PostMapping(value = "/assigned-to-me", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PatientProfileResource> createPatientProfileAssignedToAuthenticatedDoctor(
+            @RequestBody CreatePatientProfileResource resource,
+            @AuthenticationPrincipal Jwt jwt) {
+        var userId = resolveAuthenticatedUserId(jwt);
+        var command = CreatePatientProfileCommandFromResourceAssembler
+                .toAssignedCommandFromResource(resource, userId);
+        var patientProfile = assignedPatientProfileCommandService.handle(command);
 
         if (patientProfile.isEmpty()) {
             return ResponseEntity.badRequest().build();
